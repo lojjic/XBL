@@ -136,7 +136,7 @@
 			<field name="_showPopup">true</field>
 			<property name="showPopup" onget="return this._showPopup;">
 				<setter><![CDATA[
-					var popup = document.getAnonymousNodes(this)[0].childNodes[2];
+					var popup = document.getAnonymousNodes(this)[0].getElementsByTagName("div")[0];
 					if(val) {
 						popup.style.display="block";
 						var thisRef = this;
@@ -207,21 +207,21 @@
 						case "bottom": iL=varPos; iB=fixPos; pB=popPos; break;
 						default: iT=varPos; iL=fixPos; pL=popPos; pT=bar.iconMaxSize/3; break;
 					}
-					var anon = document.getAnonymousNodes(this)[0]
+					var anon = document.getAnonymousNodes(this)[0];
 					s = anon.style;
 						s.left=iL||"auto"; s.top=iT||"auto"; s.right=iR||"auto"; s.bottom=iB||"auto";
 						s.height=s.width=(this.size=newSize)+"px";
 
-					s = anon.childNodes[2].style;
+					s = anon.getElementsByTagName("div")[0].style;
 						s.left=pL||"auto"; s.top=pT||"auto"; s.right=pR||"auto"; s.bottom=pB||"auto";
 				]]></body>
 			</method>
 			
 			<constructor><![CDATA[
 				var icon = document.getAnonymousNodes(this)[0];
-				var iconImg = icon.childNodes[0];
-				var iconAlt = icon.childNodes[1];
-				var iconLbl = icon.childNodes[2];
+				var iconImg = icon.getElementsByTagName("img")[0];
+				var iconAlt = icon.getElementsByTagName("span")[0];
+				var iconLbl = icon.getElementsByTagName("div")[0];
 				
 				iconAlt.appendChild(document.createTextNode(this.label));
 				
