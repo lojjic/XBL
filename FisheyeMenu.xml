@@ -1,0 +1,337 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl" xmlns:h="http://www.w3.org/1999/xhtml">
+
+	<binding id="menu">
+		<implementation>
+			<field name="_edge">'left'</field>
+			<field name="_icnMin">32</field>
+			<field name="_icnMax">64</field>
+			<field name="_icnSpc">8</field>
+			<field name="_sclRch">4</field>
+			<field name="_scaled">false</field>
+			<field name="openItem">null</field>
+			<field name="lastScaledTime">0</field>
+			<field name="pos">0</field>
+			
+			<property name="edge" onset="this._edge=val; this.update(); return val;" onget="return this._edge;" />
+			<property name="iconMinSize" onset="this._icnMin=val; this.update(); return val;" onget="return this._icnMin;" />
+			<property name="iconMaxSize" onset="this._icnMax=val; this.update(); return val;" onget="return this._icnMax;" />
+			<property name="iconSpacing" onset="this._icnSpc=val; this.update(); return val;" onget="return this._icnSpc;" />
+			<property name="scaleReach"  onset="this._sclRch=val; this.update(); return val;" onget="return this._sclRch;" />
+			<property name="scaled" onset="this._scaled=val; if(!val) this.update(); return val;" onget="return this._scaled;" />
+			
+			<method name="update">
+				<parameter name="event" />
+				<body><![CDATA[
+					var i, elt;
+					//loop through all icons; update each and add up total length:
+					var iconLength=0, iconCount=0;
+					var bkg = document.getAnonymousNodes(this)[0];
+					var items = (bkg == this.childNodes[0]) ? bkg.childNodes : this.childNodes;
+					for(i=0; (elt=items[i]); i++) {
+						if(elt.update && elt.size) {
+							elt.update(event);
+							iconLength += elt.size;
+							iconCount++;
+						}
+					}
+
+					var isVertical = (this.edge=="left" || this.edge=="right");
+					var isTopLeft  = (this.edge=="left" || this.edge=="top");
+
+					var edgeLen = isVertical ? (window.innerHeight || document.body.clientHeight) : (window.innerWidth || document.body.clientWidth); //width or height of window
+					var scrollX = (window.scrollX || document.body.scrollLeft || 0);
+					var scrollY = (window.scrollY || document.body.scrollTop  || 0);
+					var areaLen = (edgeLen - 48);
+					var areaWid = (this.iconMaxSize + this.iconSpacing + 4);
+					var areaToEdge = ((isTopLeft ? 1 : -1) * (isVertical ? scrollX : scrollY)) + "px";
+					var areaToSide = ((isVertical ? scrollY : scrollX) + 24) + "px";
+					var barLen = iconLength + iconCount * this.iconSpacing;
+					var barWid = this.iconMinSize + this.iconSpacing;
+					var barToSide = (this.pos = areaLen/2 - barLen/2) + "px";
+					var barToEdge = this.iconSpacing/2 + "px";
+					
+					var s,bL,bT,bR,bB,bW,bH,aL,aT,aR,aB,aW,aH;
+					switch(this.edge) {
+						case "top": bL=barToSide; bT=barToEdge; bH=barWid; bW=barLen; aL=areaToSide; aT=areaToEdge; aW=areaLen; aH=areaWid; break;
+						case "right": bT=barToSide; bR=barToEdge; bH=barLen; bW=barWid; aT=areaToSide; aR=areaToEdge; aH=areaLen; aW=areaWid; break;
+						case "bottom": bL=barToSide; bB=barToEdge; bH=barWid; bW=barLen; aL=areaToSide; aB=areaToEdge; aW=areaLen; aH=areaWid; break;
+						default: bT=barToSide; bL=barToEdge; bH=barLen; bW=barWid; aT=areaToSide; aL=areaToEdge; aH=areaLen; aW=areaWid; break;
+					}
+					s = bkg.style; //the bar
+						s.left=bL||"auto"; s.top=bT||"auto"; s.right=bR||"auto"; s.bottom=bB||"auto";
+						s.height=bH+"px"; s.width=bW+"px";
+					s = this.style; //the mouseover area
+						s.left=aL||"auto"; s.top=aT||"auto"; s.right=aR||"auto"; s.bottom=aB||"auto";
+						s.height=aH+"px"; s.width=aW+"px";
+				]]></body>
+			</method>
+			
+			<constructor><![CDATA[
+				var thisRef = this;
+				window.onscroll = function(){ thisRef.update(); }; //update on scroll
+				this.style.position="absolute";
+			]]></constructor>
+		</implementation>
+		
+		<handlers>
+			<handler event="mousemove"><![CDATA[
+				if(this.openItem) return;
+
+				// reduce animation to larger time intervals (makes smoother):
+				var now = new Date();
+				if(now - this.lastScaledTime < 100) return;
+				this.lastScaledTime = now;
+
+				this.update(event);
+			]]></handler>
+			
+			<handler event="mouseover" action="this.scaled = true;" />
+			
+			<handler event="mouseout"><![CDATA[
+				if(this.openItem) return;
+				// skip if mouse is staying within menu element:
+				var t;
+				if(t = event.relatedTarget || event.toElement) {
+					while(t && t != this) t = t.parentNode;
+					if(t == this) return;
+				}
+				this.scaled = false;
+			]]></handler>
+		</handlers>
+		
+		<content>
+			<h:div class="fisheye-menu-background" style="position:absolute;">
+				<children />
+			</h:div>
+		</content>
+	</binding>
+	
+	
+	<binding id="icon">
+		<implementation>
+			<field name="link">null</field>
+			<field name="label">
+				//get label (first text node):
+				function getFirstTextNode(inNode) {
+					if(!inNode) return false; //exit if node not defined
+					if(inNode.nodeType == 3) return inNode; //text node! - return the text node
+					if(inNode.nodeType == 1) //element - recurse into children, then following siblings
+						return getFirstTextNode(inNode.firstChild) || getFirstTextNode(inNode.nextSibling) || false;
+					return false;
+				}
+				var labelNode = getFirstTextNode(this);
+				var labelParent = labelNode.parentNode;
+				if(labelParent.tagName.toLowerCase() == "a") this.link = labelParent.href; //remember label link
+				labelNode.nodeValue.replace(/^\s*(.*)\s*$/,"$1"); //strip leading and trailing space
+			</field>
+			<field name="parentBar">
+				var p = this.parentNode;
+				if(p.nodeName.toLowerCase() != "ul") p = p.parentNode;
+				p;
+			</field>
+			<field name="pos">0</field>
+			<field name="size">this.parentBar.iconMinSize</field>
+			
+			<field name="_showPopup">true</field>
+			<property name="showPopup" onget="return this._showPopup;">
+				<setter><![CDATA[
+					var popup = document.getAnonymousNodes(this)[0].childNodes[2];
+					if(val) {
+						popup.style.display="block";
+						var thisRef = this;
+						var hdlr = this._mousedownHdlr = function(event) {
+							var tgt = event.target || event.srcElement;
+							while(tgt && tgt!=thisRef && tgt!=thisRef.parentBar) tgt=tgt.parentNode;
+							if(tgt==thisRef) return; //ignore if within this item
+							thisRef.showPopup = false;
+							if(tgt!=thisRef.parentBar) thisRef.parentBar.update();
+						}
+						var aEL = document.addEventListener;
+						document[aEL ? "addEventListener" : "attachEvent"]((aEL ? "" : "on")+"mousedown", hdlr, false);
+					} else {
+						this.showMenu=false;
+						popup.style.display="none";
+						var aEL = document.removeEventListener;
+						if(this._mousedownHdlr) document[aEL ? "removeEventListener" : "detachEvent"]((aEL ? "" : "on")+"mousedown", this._mousedownHdlr, false);
+					}
+					return this._showPopup=val;
+				]]></setter>
+			</property>
+			
+			<field name="_showMenu">true</field>
+			<property name="showMenu" onget="return this._showMenu;">
+				<setter><![CDATA[
+					var submenu = this.getElementsByTagName("ul")[0];
+					if(!submenu) return;
+					if(val) {
+						this.showPopup=true;
+						submenu.style.display="block";
+						this.parentBar.openItem = this;
+					} else {
+						submenu.style.display="none";
+						this.parentBar.openItem = null;
+					}
+					return this._showMenu = val;
+				]]></setter>
+			</property>
+			
+			<method name="update">
+				<parameter name="event" />
+				<body><![CDATA[
+					var bar = this.parentBar;
+					var isVertical = (bar.edge=="left" || bar.edge=="right");
+
+					//calculate icon size:
+					var newSize = bar.iconMinSize;
+					if(event) {
+						var mousePos = isVertical ? event.clientY : event.clientX;
+						var mouseDist = Math.abs(mousePos - 24 - bar.pos - this.pos - this.size/2) - this.size/2;
+						if(mouseDist < 0) mouseDist = 0;
+						newSize = bar.iconMaxSize - mouseDist / bar.scaleReach;
+						if(newSize < bar.iconMinSize) newSize = bar.iconMinSize; //keep from going below minimum size
+					} else {
+						this.showPopup = false;
+					}
+					var prevIcon = this.previousSibling; while(prevIcon && prevIcon.nodeType!=1) prevIcon=prevIcon.previousSibling; //find previous icon
+					var newPos = prevIcon ? (prevIcon.pos + prevIcon.size + bar.iconSpacing) : (bar.iconSpacing / 2);
+					if(event && this.size == (newSize = Math.round(newSize)) && this.pos == (newPos = Math.round(newPos))) return; //if already in the right place, stop calculation
+
+					var fixPos = (bar.iconSpacing / 2) + "px";
+					var varPos = (this.pos = newPos) + "px";
+					var popPos = (bar.iconMaxSize + bar.iconSpacing*2) + "px";
+					var s,iL,iT,iR,iB,pL,pT,pR,pB;
+					switch(bar.edge) {
+						case "top": iL=varPos; iT=fixPos; pT=popPos; break;
+						case "right": iT=varPos; iR=fixPos; pR=popPos; pT=bar.iconMaxSize/3; break;
+						case "bottom": iL=varPos; iB=fixPos; pB=popPos; break;
+						default: iT=varPos; iL=fixPos; pL=popPos; pT=bar.iconMaxSize/3; break;
+					}
+					var anon = document.getAnonymousNodes(this)[0]
+					s = anon.style;
+						s.left=iL||"auto"; s.top=iT||"auto"; s.right=iR||"auto"; s.bottom=iB||"auto";
+						s.height=s.width=(this.size=newSize)+"px";
+
+					s = anon.childNodes[2].style;
+						s.left=pL||"auto"; s.top=pT||"auto"; s.right=pR||"auto"; s.bottom=pB||"auto";
+				]]></body>
+			</method>
+			
+			<constructor><![CDATA[
+				var icon = document.getAnonymousNodes(this)[0];
+				var iconImg = icon.childNodes[0];
+				var iconAlt = icon.childNodes[1];
+				var iconLbl = icon.childNodes[2];
+				
+				iconAlt.appendChild(document.createTextNode(this.label));
+				
+				var lsImg = this.currentStyle ? this.currentStyle.listStyleImage : document.defaultView.getComputedStyle(this,null).getPropertyValue("list-style-image");
+				if(lsImg && lsImg.indexOf("url(")==0) {
+					var src = lsImg.replace(/^url\("?([^"]*)"?\)$/,"$1"); //get path out of "url(path)" string
+					if(src.match(/.png$/) && iconImg.runtimeStyle && navigator.userAgent.match(/MSIE (5\.5|[6789])/) && navigator.platform == "Win32") { //add IE alpha filter if PNG image, to enable alpha transparency:
+						iconImg.runtimeStyle.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + src + "', sizingMethod='scale')";
+						iconImg.src = "http://www.microsoft.com/homepage/gif/1ptrans.gif?please_support_PNG_alpha_transparency"; //they make me do hacks like this, I use their bandwidth.
+					}
+					else iconImg.src = src;
+					iconAlt.style.display = "none";
+				} else {
+					iconImg.style.display = "none";
+				}
+				this.style.listStyleImage = this.style.listStyleType = "none";
+				
+				this.showPopup = false;
+				this.parentBar.update(); //redisplay bar
+			]]></constructor>
+		</implementation>
+		
+		<handlers>
+			<handler event="click"><![CDATA[
+				this.showMenu = false;
+				this.parentBar.update(event);
+				if(this.link) location.href = this.link; // if link, go there
+				this.showMenu = true;
+			]]></handler>
+			<handler event="mouseover"><![CDATA[
+				if(!this.parentBar.openItem) this.showPopup = true;
+				window.status = this.link ? "Go to " + this.label + "  [ " + this.link + " ]" : "Show Menu for " + this.label;
+			]]></handler>
+			<handler event="mouseout"><![CDATA[
+				if(!this.parentBar.openItem) this.showPopup = false;
+				window.status = "";
+			]]></handler>
+		</handlers>
+		
+		<content>
+			<h:div class="fisheye-menu-icon" style="position:absolute;">
+				<h:img class="fisheye-menu-icon-img" style="position:absolute; top:0; left:0; width:100%; height:100%;" />
+				<h:span class="fisheye-menu-icon-alt" style="position:absolute; top:0; left:0; width:100%; height:100%;" />
+				<h:div class="fisheye-menu-popup" style="position:absolute; display:none;">
+					<children />
+				</h:div>
+			</h:div>
+		</content>
+	</binding>
+	
+	<binding id="controller">
+		<implementation>
+			<constructor><![CDATA[
+				var thisRef=this;
+				var loadHdlr = function() {
+					var i, fld;
+					var anon = document.getAnonymousNodes(thisRef)[0];
+					var flds = anon.getElementsByTagName("input"); //get text inputs
+					flds[flds.length] = anon.getElementsByTagName("select")[0]; //add the select field
+					var menu = document.getElementById(thisRef.getAttribute("title"));
+					if(!menu) return;
+					for(i=0; (fld=flds[i]); i++) {
+						fld.value = menu[fld.name]; // Set field to menu initial value
+						fld.onchange = function() { // When changed, set menu to field value:
+							var p = "parentNode";
+							var id = this[p][p][p][p][p].getAttribute("title");
+							if(menu) menu[this.name] = (this.name=="edge" ? this.value : parseFloat(this.value));
+						};
+					}
+				};
+				if(window.addEventListener) window.addEventListener("load", loadHdlr, false); //fire after load so we can be sure the menu is fully loaded and bound
+				loadHdlr(); //in case doc already loaded
+			]]></constructor>
+		</implementation>
+
+		<content>
+			<table xmlns="http://www.w3.org/1999/xhtml">
+			<tbody>
+			<tr>
+				<th>Edge of Window:</th>
+				<td>
+					<select name="edge">
+					<option value="left">left</option>
+					<option value="bottom">bottom</option>
+					<option value="right">right</option>
+					<option value="top">top</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>Min. Icon Size:</th>
+				<td><input type="text" size="3" name="iconMinSize" /> pixels</td>
+			</tr>
+			<tr>
+				<th>Max. Icon Size:</th>
+				<td><input type="text" size="3" name="iconMaxSize" /> pixels</td>
+			</tr>
+			<tr>
+				<th>Icon Spacing:</th>
+				<td><input type="text" size="3" name="iconSpacing" /> pixels</td>
+			</tr>
+			<tr>
+				<th>Scaling Curve:</th>
+				<td><input type="text" size="3" name="scaleReach" /> (bigger number is smoother curve)</td>
+			</tr>
+			</tbody>
+			</table>
+			<children />
+		</content>
+	</binding>
+	
+	
+</bindings>

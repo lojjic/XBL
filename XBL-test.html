@@ -1,0 +1,223 @@
+<html>
+<head>
+	<title>Test XBL Bindings</title>
+	
+	<!--
+	Here are some features to test:
+	
+	* attachment
+		a) initial load by CSS rule
+			a) in stylesheet
+			b) in style="" attribute
+		b) via script with addBinding()
+		c) script changing class to match CSS rule
+		d) new script-created element matching CSS rule
+		e) bindingattached event
+	* detachment
+		a) removal via detachBinding()
+		b) replacing one binding with another
+		c) changing class so it no longer matches CSS rule
+		d) bindingdetached event
+	* constructor
+	* destructor
+	* field
+		a) setting initial value
+		b) changing value
+	* property
+		a) initial value from getter
+		b) custom setter
+	* method
+	* handlers
+		a) simple handler
+		b) event filters: button, keycode, charcode, clickcount, modifiers, phase
+		c) preventdefault
+	* content
+		a) insertion point as child of anonymous content
+		b) insertion point as top-level sibling of anonymous content
+		c) attribute forwarding
+		d) multiple insertion points with includes="" filtering
+	* resources
+		a) image
+		b) stylesheet
+	* binding inheritance
+		a) implementation, handlers
+		b) content
+	* XBL DOM
+		get anonymous children
+		get real children
+		get anonymous parent
+		get real parent
+		get real siblings (for multiple insertion points)
+	-->
+	
+	<style type="text/css">
+	/*=== General Page Style: ===*/
+	html, body {margin:0; padding:0; background:#FFF; color:#000;}
+	html, body, input, button, select {font-size:12px; font-family:sans-serif;}
+	h1 {font-size:1.5em; padding:.5em; margin:.5em .66em; background:#EEE; border:1px solid #CCC;}
+	h2 {font-size:1.2em; margin:0 0 1em; padding:.2em .5em; background:#666; color:#FFF;}
+	h3 {font-size:1.1em; margin:0; padding:1em 0; border-top:1px solid #CCC;}
+	p {padding:0; margin:1em 0;}
+	
+	/*=== Tests Section: ===*/
+	#tests {margin-right:18em; padding:0; height:100%; overflow:auto;}
+	.test {border:1px solid #CCC; margin:1em; padding:1em;}
+	
+	/*=== Output Section: ===*/
+	#output {position:absolute; top:0; right:0; width:18em; height:100%; overflow:auto; background:#EEE; border-left:1px solid #CCC; -moz-binding:url(XBL-test-bindings.xml#output);}
+	#output h2 {padding:.5em;}
+	#output div {border-bottom:1px solid #CCC; padding:1em;}
+	
+	/*=== The Tests: ===*/
+	.target {border:1px solid blue; padding:.5em; margin:0 2em;}
+	
+		/*= Attachment: =*/
+		#attachment-a {-moz-binding:url(XBL-test-bindings.xml#helloworld);}
+		#attachment-c.has-binding {-moz-binding:url(XBL-test-bindings.xml#helloworld);} /*class set via script*/
+		#attachment-d {-moz-binding:url(XBL-test-bindings.xml#helloworld);} /*created via script*/
+
+		/*= Constructor: =*/
+		#constructor-a {-moz-binding:url(XBL-test-bindings.xml#helloworld-constructor);}
+
+		/*= Detachment: =*/
+
+		/*= Destructor: =*/
+
+		/*= Field: =*/
+		#field-test-a {background-color:red; -moz-binding:url(XBL-test-bindings.xml#fields);}
+
+
+
+
+		/*= Inheritance: =*/
+		#inheritance-a {-moz-binding:url(XBL-test-bindings.xml#inheritance-derived);}
+
+	</style>
+	
+	<script type="text/javascript" src="XBL.js"></script>
+	
+</head>
+<body>
+
+	<div id="output"><h2>Output:</h2><!-- This holds all output info. --></div>
+	
+	<div id="tests">
+		<h1>XBL Test Cases</h1>
+	
+		<div class="test" id="attachment">
+			<h2>Binding Attachment:</h2>
+			
+			<h3>a) Matching CSS Rule (on page load):</h3>
+				<div class="target" id="attachment-a"></div>
+				<p>The element above should say that the binding has been attached.</p>
+			
+			<h3>b) Via Script With document.addBinding():</h3>
+				<div class="target" id="attachment-b"></div>
+				<p>Clicking the following button should attach a binding to the element above: <button onclick="document.addBinding(getElementById('attachment-b'), 'XBL-test-bindings.xml#helloworld');">Attach Binding</button></p>
+			
+			<h3>c) Script Modifying Element To Match CSS Rule:</h3>
+				<div class="target" id="attachment-c"></div>
+				<p>Clicking the following button will add a class to the element above, causing it to match a CSS rule that specifies a binding: <button onclick="document.getElementById('attachment-c').className += ' has-binding';">Change Class</button></p>
+			
+			<h3>d) Script Creating New Element That Matches CSS Rule:</h3>
+				<div id="attachment-d-container" class="target"></div>
+				<p>Clicking the following button will create a new element above that matches a CSS rule that specifies a binding: <button onclick="var elt = document.createElement('div'); elt.id='attachment-d'; document.getElementById('attachment-d-container').appendChild(elt);">Create Element</button></p>
+		</div>
+	
+		<div class="test" id="detachment">
+			<h2>Binding Detachment:</h2>
+			<p>Not yet...</p>
+		</div>
+	
+		<div class="test" id="constructor">
+			<h2>&lt;constructor/&gt;:</h2>
+			
+			<div class="target" id="constructor-a"></div>
+			<p>The element above should say that the binding has been attached (the text and color are set via script in the constructor).</p>
+		</div>
+		
+		<div class="test" id="destructor">
+			<h2>&lt;destructor/&gt;:</h2>
+			<p>Not yet...</p>
+		</div>
+		
+		<div class="test" id="field">
+			<h2>&lt;field/&gt;:</h2>
+			
+			<h3>a) Setting default field value:</h3>
+				<div id="field-test-a" class="target">Binding not attached.</div>
+			
+		</div>
+		
+		<div class="test" id="property">
+			<h2>&lt;property/&gt;:</h2>
+		</div>
+
+		<div class="test" id="method">
+			<h2>&lt;method/&gt;:</h2>
+		</div>
+		
+		<div class="test" id="handler">
+			<h2>&lt;handler/&gt;:</h2>
+		</div>
+		
+		<div class="test" id="content">
+			<h2>&lt;content/&gt;:</h2>
+		</div>
+		
+		<div class="test" id="resources">
+			<h2>&lt;resources/&gt;:</h2>
+		</div>
+		
+		<div class="test" id="inheritance">
+			<h2>Binding Inheritance (extends=""):</h2>
+			
+			<h3>Inheritance and overriding of fields:</h3>
+				<div id="inheritance-a" class="target">Press the buttons below to run the test.</div>
+				<p>
+					<button onclick="document.getElementById('inheritance-a').showInherited()">Test Inherited Fields</button>
+					<button onclick="document.getElementById('inheritance-a').showOverridden()">Test Overridden Fields</button>
+				</p>
+				
+				
+		</div>
+		
+		<div class="test" id="dom">
+			<h2>XBL DOM:</h2>
+		</div>
+		
+		
+		
+		
+		
+		<!-- OLD TESTS:
+		<div id="target" forwardedattr1="value of forwarded attribute 1" forwardedattr2="value of forwarded attribute 2">This is text in the bound element.
+			<p>This is a paragraph within the bound element.</p>
+		</div>
+
+		<button onclick="document.getElementById('target').someMethod('first param', 'second param')">Call someParam('first param', 'second param') on bound element</button><br>
+		<button onclick="document.getElementById('target').turnRed()">Turn Element Red</button><br>
+		<button onclick="document.getElementById('output').print(document.getElementById('target').getElementsByTagName('div')[0].bindingOwner.id)">Test ElementXBL.bindingOwner property (should print 'target')</button><br>
+		<button onclick="document.getElementById('target').someProperty = document.getElementById('setPropTo').value">Set property to value:</button><input type="text" id="setPropTo" value="New Property Value"><br>
+
+		<button onclick="document.getElementById('target').appendChild(document.createElement('div'));">Append Child</button>
+
+		
+		<hr>
+
+		<div id="secondTarget">Click on the button below to apply the binding to this element.</div>
+		<button onclick="document.getElementById('secondTarget').addBinding('XBL-test-bindings.xml#theBinding')">Add Binding</button>
+		
+		<hr>
+		
+		<button onclick="var div = document.createElement('div'); div.className = 'created'; this.parentNode.insertBefore(div, this.nextSibling);">Create an element that matches a -moz-binding rule</button>
+		
+		<hr>
+		
+		<p id="extension">This element has a binding that extends another binding. The derived binding overrides one of the base binding's methods. The first button below should print "Base binding" but the second should print "Derived binding".</p>
+		<button onclick="document.getElementById('output').print(document.getElementById('extension').methodOne());">methodOne()</button>
+		<button onclick="document.getElementById('output').print(document.getElementById('extension').methodTwo());">methodTwo()</button>
+		-->
+	</div>
+	
+</body>

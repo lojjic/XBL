@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<xbl:bindings xmlns:xbl="http://www.mozilla.org/xbl">
+	<xbl:binding id="body">
+		<xbl:content>
+			<table xmlns="http://www.w3.org/1999/xhtml" width="100%" height="100%">
+			<tbody><tr><td align="center" valign="middle">
+				<div id="anon-body-container" style="position:relative; text-align:left;">
+					<xbl:children />
+				</div>
+			</td></tr></tbody>
+			</table>
+		</xbl:content>
+	</xbl:binding>
+</xbl:bindings>

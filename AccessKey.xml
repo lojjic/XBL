@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!-- XXX - doesn't work in Mozilla. Draws a blank page. -->
+
+<bindings xmlns="http://www.mozilla.org/xbl" xmlns:h="http://www.w3.org/1999/xhtml">
+	<binding id="element">
+		<implementation>
+			<constructor><![CDATA[
+				// Recursive function to find first instance of key in node and wrap it:
+				function wrapFirstChar(node,key) {
+					if(node.nodeType==1) {
+						if(node.firstChild && wrapFirstChar(node.firstChild,key)) return true;
+						if(node.nextSibling && wrapFirstChar(node.nextSibling,key)) return true;
+					} else if(node.nodeType==3) {
+						var txt = node.nodeValue;
+						var idx = txt.toLowerCase().indexOf(key.toLowerCase());
+						if(idx >= 0) { //modify the node
+							var modKey = (navigator.userAgent.indexOf("Mac")>=0) ? "Control" : "Alt";
+							var bef = txt.substring(0,idx);
+							var aft = txt.substring(idx+1);
+							var par = node.parentNode;
+							var em = document.createElement("em");
+								em.className="accesskey";
+								em.setAttribute("title","Shortcut key: " + modKey + "+" + key.toUpperCase());
+								em.appendChild(document.createTextNode(txt.charAt(idx)));
+							par.insertBefore(document.createTextNode(bef),node);
+							par.insertBefore(em,node);
+							par.insertBefore(document.createTextNode(aft),node);
+							par.removeChild(node);
+							return true;
+						}
+					}
+					return false;
+				}
+				
+				// clone it and modify the clone:
+				wrapFirstChar(this, this.getAttribute("accesskey"));
+			]]></constructor>
+		</implementation>
+	</binding>
+</bindings>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl">
+	<binding id="image">
+		<implementation>
+			<field name="origSrc">this.src;</field>
+			<field name="overSrc">this.src.replace(/\.(png|gif|jpg)$/, "_on.$1");</field>
+			<constructor>
+				new Image().src = this.overSrc; //preload!
+			</constructor>
+		</implementation>
+		<handlers>
+			<handler event="mouseover" action="this.src=this.overSrc;" />
+			<handler event="mouseout"  action="this.src=this.origSrc;" />
+		</handlers>
+	</binding>
+</bindings>

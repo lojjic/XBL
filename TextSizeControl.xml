@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl" xmlns:h="http://www.w3.org/1999/xhtml">
+	<binding id="control">
+		<implementation>
+			<field name="defaultSize">12</field>
+			<field name="minSize">8</field>
+			<field name="maxSize">24</field>
+			
+			<field name="_size">this.defaultSize</field>
+			<property name="size" onget="return this._size;">
+				<setter><![CDATA[
+					if(!(val = parseFloat(val))) return; //ignore non-numbers
+					
+					// Keep size within bounds:
+					if(val < this.minSize) this.size = this.minSize;
+					else if(val > this.maxSize) this.size = this.maxSize;
+					else {
+						this._size = val;
+
+						// set style:
+						document.documentElement.style.fontSize = val + "px";
+
+						// set field to new value:
+						document.getAnonymousNodes(this)[1].value = val;
+
+						// store value in cookie:
+						var cook = "TextSize=" + escape(val) + "; expires=" + (60*60*24*365) + "; path=/";
+						document.cookie = cook;
+					}
+				]]></setter>
+			</property>
+
+			<constructor>
+				var size = this.defaultSize;
+				
+				// get initial size from cookie if set:
+				var cook = document.cookie;
+				var pos = cook.indexOf("TextSize=");
+				if(pos != -1) {
+					var start = pos + 9;
+					var end = cook.indexOf(";", start);
+					if(end == -1) end = cook.length;
+					var value = cook.substring(start, end);
+					if(value) size = value;
+				}
+				
+				this.size = size;
+			</constructor>
+		</implementation>
+		<content>
+			<children />
+			<h:button class="text-size-decrease" title="Decrease Text Size" onclick="this.parentNode.size--;">-</h:button>
+			<h:input type="text" size="2" 
+				onchange="this.parentNode.size = parseFloat(this.value);" 
+				onkeypress="if(event.keyCode != 13) return; this.parentNode.size = parseFloat(this.value);" 
+			/>
+			<h:button class="text-size-increase" title="Increase Text Size" onclick="this.parentNode.size++;">+</h:button>
+		</content>
+	</binding>
+</bindings>

@@ -1,0 +1,80 @@
+<html>
+<head>
+	<title>Test XBL Bindings</title>
+	<style type="text/css">
+		@import url(TreeMenu.css);
+	
+		html, body {font-size:11px; font-family:sans-serif;}
+
+		#item2 {list-style-image:none;}
+		#leaf-with-icon {list-style-image:url(assets/folder-16x16.png);}
+	</style>
+	
+	<script type="text/javascript" src="XBL.js"></script>
+	
+</head>
+<body>
+
+	<ul class="tree-menu">
+		<li id="item1">Menu Item 1
+			<ul>
+				<li id="item1x1">Submenu
+					<ul>
+						<li><a href="">Submenu 2</a></li>
+						<li id="item1x1x2">Submenu 2
+							<ul>
+								<li><a href="">Submenu 3</a></li>
+								<li><a href="">Submenu 3</a></li>
+								<li><a href="">Submenu 3</a></li>
+							</ul>
+						</li>
+						<li id="item1x1x3">Submenu 2
+							<ul>
+								<li><a href="">Submenu 3</a></li>
+								<li><a href="">Submenu 3</a></li>
+								<li><a href="">Submenu 3</a></li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+				<li>Submenu
+					<div>Misc. menu item content</div>
+				</li>
+				<li><a href="">Submenu</a></li>
+			</ul>
+		</li>
+		<li id="item2">Menu Item 2
+			<ul>
+				<li><a href="">Submenu</a></li>
+				<li id="leaf-with-icon"><a href="">Submenu</a></li>
+				<li><a href="">Submenu</a></li>
+			</ul>
+		</li>
+		<li id="item3">Menu Item 3
+			<ul>
+				<li><a href="">Submenu</a></li>
+				<li><a href="">Submenu</a></li>
+				<li><a href="">Submenu</a></li>
+			</ul>
+		</li>
+		<li id="item4">Menu Item 4
+			<ul>
+				<li><a href="">Submenu</a></li>
+				<li><a href="">Submenu</a></li>
+				<li><a href="">Submenu</a></li>
+			</ul>
+		</li>
+		<li id="item5">Menu Item 5
+			<ul>
+				<li><a href="">Submenu</a></li>
+				<li><a href="">Submenu</a></li>
+				<li><a href="">Submenu</a></li>
+			</ul>
+		</li>
+	</ul>
+	
+	<button onclick="document.getElementById('leaf-with-icon').setIcon('assets/folder' + (this.toggled = !this.toggled ? '_open' : '') + '-16x16.png');">
+		change item 2:2's icon (.setIcon() method)
+	</button>
+	
+</body>

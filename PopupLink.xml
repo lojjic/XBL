@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl">
+	<binding id="link">
+		<handlers>
+			<handler event="click"><![CDATA[
+				//TODO: get these values from some appropriate attribute of link rather than hardcoding
+				var n = 'popup'; //name of window
+				var w = 640; //width
+				var h = 480; //height
+			
+				var win = window.open(this.href, n, 'width=' + w + ',height=' + h + ',scrollbars=1,resizable=1');
+				if(!win) return; //quit if something failed (popup blocking, etc.)
+				
+				// Cancel link default action:
+				try { event.preventDefault(); } //W3C
+				catch(e) { event.returnValue = false; } //IE
+			]]></handler>
+		</handlers>
+	</binding>
+</bindings>

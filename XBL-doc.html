@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>IEtoW3C.js Documentation</title>
+	<style type="text/css">
+	body {font-family:sans-serif; padding:0; margin:.5em 2em;}
+	h1 {font-size:1.5em; font-weight:bold; border-bottom:3px double; padding-bottom:.5em;}
+	h2 {font-size:1.2em; font-weight:bold; background:#EEE; padding:0 .5em; border:1px solid #CCC;}
+	h3 {font-size:1em; font-weight:bold;}
+	p, ul {margin-bottom:1em;}
+	code.block {display:block;}
+	dt {font-weight:bold;}
+	</style>
+</head>
+<body>
+
+<h1>XBL.js Documentation</h1>
+
+<p><a href="XBL.js">The Script Source</a></p>
+
+<h2>What It Does:</h2>
+	<p>This script implements the eXtensible Binding Language (XBL) in <acronym title="Microsoft Internet Explorer">MSIE</acronym> on Windows.  I hope to add support for other browsers in the future.</p>
+	<p>XBL, if you're unfamiliar, is an XML-based language for specifying complex implementations of XML/HTML elements.  By attaching an XBL binding to an element (through <acronym title="Cascading Style Sheets">CSS</acronym>), that element automatically obtains all the properties, methods, event handlers, and content specified by the binding.  This makes XBL extremely powerful for creating reusable widgets and behaviors without polluting your document with scripts and presentational markup.</p>
+	<p>Despite its power and flexibility, XBL remains unused on the Web, mostly because it is only implemented in browsers based on Mozilla.org's Gecko rendering engine.  By using this script, XBL (or at least a subset thereof) will work in a much larger pool of browsers and therefore can become viable for widespread use.</p>
+
+
+
+
+<h2>How To Use It:</h2>
+	<p>Include the following script reference in the head of your document:</p>
+	<pre><code>&lt;script type="text/javascript" src="path/to/XBL.js"&gt;&lt;/script&gt;</code></pre>
+	
+	<p>Then, once you have created your XBL binding(s), attach them to elements using the <code>-moz-binding</code> CSS property, for example:</p>
+	<pre><code>&lt;style type="text/css"&gt;
+   .binding-class {-moz-binding:url(BindingDocument.xml#bindingID);}
+&lt;/style&gt;</code></pre>
+
+	<p>For more information on creating XBL bindings see the <a href="http://www.mozilla.org/catalog/architecture/xbl/">documentation on Mozilla.org</a>, especially the <a href="http://www.xulplanet.com/tutorials/xultu/introxbl.html">Introduction to XBL at XULPlanet</a>.</p>
+	<p><strong>Note:</strong> Some XBL features may not behave as expected using this implementation. See "Caveats" below for details.</p>
+
+
+
+
+<h2>Implementation:</h2>
+	<p>Because there are significant differences between the <a href="http://www.mozilla.org/projects/xbl/xbl.html">XBL 1.0 Spec</a> submitted to the W3C and what Mozilla actually implements, I had to choose what to support. I decided that for the time being it would be best to attempt to follow Mozilla's implementation to preserve interoperability.  I therefore worked mostly from <a href="http://www.xulplanet.com">XULPlanet</a>'s documentation.  Some features unique to the XBL 1.0 Spec may have crept in to my implementation where useful.</p>
+	<p>Here is a listing of all the XBL features, along with what works and what doesn't (to my best knowledge).</p>
+	
+	<dl>
+		<dt>&lt;binding id=""/&gt;</dt>
+		<dd>
+			<dl>
+				<dt>extends=""</dt>
+				<dd>This works properly (that I can tell) for inheriting implementations and handlers.  It currently does not work properly for content; the base binding's content should be ignored but currently is not.  Avoid using content sections in inherited bindings.</dd>
+
+				<dt>display=""</dt>
+				<dd>Not supported and will not be.</dd>
+
+				<dt>&lt;resources/&gt;
+				<dd>
+					<dl>
+						<dt>&lt;image src=""/&gt;</dt>
+						<dd>Supported for preloading images.</dd>
+
+						<dt>&lt;stylesheet/&gt;</dt>
+						<dd>Not supported.</dd>
+					</dl>
+				</dd>
+
+				<dt>&lt;implementation/&gt;</dt>
+				<dd>
+					<dl>
+						<dt>implements=""</dt>
+						<dd>Not supported and will not be.</dd>
+
+						<dt>&lt;field name=""/&gt;</dt>
+						<dd>Supported. The content of this element is evaluated as a script and the result is assigned as the field's default value.</dd>
+
+						<dt>&lt;property name=""/&gt;</dt>
+						<dd>
+							<dl>
+								<dt>&lt;getter/&gt; or onget=""</dt>
+								<dd>Not supported for the most part; the only thing it is used for is for setting the property's initial "value".  See the section in "Caveats" about property getters/setters.</dd>
+
+								<dt>&lt;setter/&gt; or onset=""</dt>
+								<dd>Supported somewhat.  See the section in "Caveats" about property getters/setters for details.</dd>
+							</dl>
+						</dd>
+
+						<dt>&lt;method name=""&gt;&lt;parameter name=""/&gt;&lt;body&gt;...&lt;/body&gt;&lt;/method&gt;</dt>
+						<dd>Supported.</dd>
+
+						<dt>&lt;constructor/&gt;</dt>
+						<dd>Supported.</dd>
+
+						<dt>&lt;destructor/&gt;</dt>
+						<dd>Not supported.</dd>
+					</dl>
+				</dd>
+
+				<dt>&lt;handlers/&gt;
+				<dd>
+					<dl>
+						<dt>&lt;handler event=""/&gt;</dt>
+						<dd>
+							Supported, but only for events defined in the IE DHTML model. Custom events will not be handled.
+							<dl>
+								<dt>action="" (or content of handler element)</dt>
+								<dd>Supported.  The <code>event</code> object will differ between IE and DOM2Events-compliant browsers as usual.</dd>
+
+								<dt>button=""</dt>
+								<dd>Supported, though the integer values for this currently map to different buttons than the standard. Avoid using this for now.</dd>
+
+								<dt>charcode=""</dt>
+								<dd>Not supported.</dd>
+
+								<dt>clickcount=""</dt>
+								<dd>Not supported.</dd>
+
+								<dt>keycode=""</dt>
+								<dd>Supported, though the keycode values may differ in IE's model.</dd>
+
+								<dt>modifiers=""</dt>
+								<dd>Supported. I map "meta" to the Alt key and "accel" to the Control key; if these should be mapped differently I welcome corrections.</dd>
+
+								<dt>phase=""</dt>
+								<dd>Supported only for "target"; "capturing" is not supported because IE's event model does not include a capturing phase.</dd>
+
+								<dt>preventdefault=""</dt>
+								<dd>Supported, to the best of my knowledge.</dd>
+
+								<dt>command=""</dt>
+								<dd>Not supported and will not be. (Only makes sense in a XUL chrome environment)</dd>
+							</dl>
+						</dd>
+					</dl>
+				</dd>
+				
+				<dt>&lt;content/&gt;</dt>
+				<dd>Content is generated as explicit content (rather than anonymous content) and children are moved to a single insertion point. See "Caveats" section for things to keep in mind when working with this generated content.
+					<dl>
+						<dt>&lt;children/&gt;</dt>
+						<dd>A single insertion point for children is supported. The includes="" attribute for child insertion filtering is not supported.</dd>
+					</dl>
+				</dd>
+			</dl>
+		</dd>
+		
+		<dt>DOM Interfaces:</dt>
+		<dd>
+			<dl>
+				<dt>DocumentXBL</dt>
+				<dd>
+					<dl>
+						<dt>.getAnonymousNodes()</dt>
+						<dd>Supported, to a degree. If the <code>&lt;children/&gt;</code> insertion point is at the top-level (i.e. a direct child of the <code>&lt;content/&gt;</code> element) then the children will incorrectly appear in the nodelist returned by <code>.getAnonymousNodes()</code>.</dd>
+
+						<dt>.getBindingParent()</dt>
+						<dd>Supported.</dd>
+						
+						<dt>.attachBinding()</dt>
+						<dd>Supported.</dd>
+						
+						<dt>.detachBinding()</dt>
+						<dd>Not supported.</dd>
+						
+						<dt>.loadBindingDocument()</dt>
+						<dd>Supported.</dd>
+						
+						<dt>.bindingDocuments</dt>
+						<dd>Supported.</dd>
+					</dl>
+				</dd>
+
+				<dt>ElementXBL</dt>
+				<dd>
+					<dl>
+						<dt>.bindingOwner</dt>
+						<dd>Supported.</dd>
+
+						<dt>.attachBinding()</dt>
+						<dd>Supported.</dd>
+
+						<dt>.detachBinding()</dt>
+						<dd>Not supported.</dd>
+					</dl>
+				</dd>
+
+				<dt>Events:</dt>
+				<dd>
+					<dl>
+						<dt>bindingattached, bindingdetached</dt>
+						<dd>Not supported.</dd>
+					</dl>
+				</dd>
+			</dl>
+		</dd>
+	</dl>
+	
+
+
+
+
+
+<h2>Caveats:</h2>
+	<p>Some features of XBL can not easily be reproduced in MSIE's document model; therefore, you need to take the following into consideration when writing XBL bindings intended for use through this script:</p>
+	
+	<h3>HTML Versus XML:</h3>
+	<p>This script has only been tested on HTML documents.  Whether it works in XML documents is unknown, mostly because I haven't tested it.  In order for it to work in XML, it requires a way to import and run the XBL.js script from the XML document, plus proper CSS selector matching on XML elements.  I'm not familiar enough with IE's XML capabilities to know if these prerequisites exist.</p>
+	
+	<h3>DHTML Object Model:</h3>
+	<p>IE notoriously doesn't support unknown elements in its DHTML object model.  Therefore using custom elements as XBL-defined widgets in your HTML document probably won't work.</p>
+	<p>The same goes for events; creating a <code>&lt;handler/&gt;</code> for a custom event (one not defined as a standard IE DHTML event) will not work.</p>
+	
+	<h3>Anonymous Content and the DOM:</h3>
+	<p>XBL has a unique concept of "anonymous content", in which the content specified by an XBL binding's <code>&lt;content/&gt;</code> section is invisible to the containing document's DOM.  For example, a binding may insert content nodes in between the bound element and its children, yet the bound element's <code>.childNodes</code> property will still refer to its original children; the DOM does not see those anonymous nodes.  There is no such concept in MSIE's object model, so this script instead inserts those "anonymous" nodes as explicit nodes in the DOM.  Therefore, you cannot use <code>.childNodes</code> and other DOM features as you would in a "true" XBL implementation.</p>
+	<p>It is usually simple to work around this by doing a simple test, for example:</p>
+	<pre><code>var kid = this.firstChild; //original firstChild, for Mozilla:
+if(kid.bindingOwner == this) {
+   // insert code to find real firstChild in IE
+}</code></pre>
+	<p>What's going on above: The .bindingOwner property only exists on anonymous XBL content nodes, and points to the bound element.  Therefore if the bound element's firstChild has a .bindingOwner pointing back to the bound element, you know that the anonymous content model is not supported and you can create a conditional statement to find the correct node.  In this way a binding can function in both models.</p>
+	
+	<h3>Time of Binding Attachment:</h3>
+	<p>Unlike Mozilla's XBL implementation which attached bindings to elements as soon as those elements are loaded, this library has to wait until the entire document is loaded. In some ways this makes things easier (you can be sure that everything is already there) but it is different nonetheless and must be taken into account.</p>
+	
+	<h3>Dynamic Content:</h3>
+	<p>Currently elements dynamically created and inserted via DOM scripting will not get bindings attached if they match -moz-binding CSS rules; binding attachment only occurs when the document is initially loaded.  I plan to add this capability in the future if possible.</p>
+	
+	<h3>MSIE DOM Incompatibilities:</h3>
+	<p>It may be obvious but bears repeating that scripts within your XBL bindings must take into account MSIE's particular DOM quirks, omissions, and proprietary features.  For example, IE's proprietary event model differs greatly from the W3C-standard DOM2 Events used in Mozilla, so you must take this into consideration within your XBL event handlers.  This is no different than DOM scripting in other situations.</p>
+
+
+
+
+<h2>Compatibility:</h2>
+	<p>Known to work in MSIE 5 and 6 on Windows.  Technically, support for other browsers should be possible as long as they provide a way to import and read external XML files via script.  I welcome assistance on adding support for other browsers.</p>
+
+
+
+
+<h2>Demonstrations:</h2>
+	<p>The following XBL demonstrations are known to work in IE6/Win (using this script) and Mozilla-based browsers.</p>
+	<ul>
+		<li><a href="XBL-test.html">Test Cases</a> - (in progress, not all tests work.)</li>
+		<li><a href="EmailLink-test.html">Obfuscated Email Links</a> - Display obfuscated email addresses as mailto: links</li>
+		<li><a href="FisheyeMenu-test.html">Fisheye Menu (aka Mac OS X Dock)</a> - displays an HTML unordered nested list as a fisheye menu; also contains a binding that creates a control panel for changing properties of the menu. (Warning: crashes Mozilla &lt;= 1.2 or so)</li>
+		<li><a href="TreeMenu-test.html">Tree Menu</a> - displays an HTML unordered nested list as a folding tree menu.</li>
+		<li><a href="Rollovers-test.html">Rollovers</a> - implements simple rollover image swapping, with preloading.</li>
+		<li><a href="TextSizeControl-test.html">Text Size Control</a> - Creates a control that allows the user to change the base text size of the page, and store that choice as a cookie.</li>
+	</ul>
+
+
+
+
+<h2>To Do:</h2>
+	<ul>
+		<li>I would <em>love</em> to make this support XBL's anonymous content model; it's one of XBL's greatest strengths, keeping binding attachment side-effect-free... after all, a stylistic behavior should not alter the document structure.  Technically I believe it should be possible to hack the IE DOM to support anonymous content: upon binding attachment I'd have to store the element's .childNodes, .parentNode, etc. initial properties, then override all the native DOM methods (and property getters/setters -- would require using HTC) with ones that take the anonymous content nodes into account.  It is debatable whether this would be worth the trouble, since it would involve a <em>lot</em> of code, basically an entire DOM (re-)implementation.  Such a reimplementation wouldn't extend to CSS matching, though this probably wouldn't be a huge problem since the only CSS selectors affected would be the child (&gt;) and sibling (+) selectors, neither of which IE currently supports anyway.</li>
+		<li>The bindingattached and bindingdetached events are not fired; I believe the only way to get IE to support these custom events is to use HTCs, and I've been unable to find an efficient way of doing that so far.</li>
+		<li>Binding removal. This isn't a priority since even Mozilla has problems doing this.</li>
+		<li>Add any other unsupported features and fix partially supported ones.</li>
+	</ul>
+
+
+<h2>Changelog:</h2>
+	<ul>
+		<!--<li>2004-02-08: Public Release of Initial Working Version</li>-->
+	</ul>
+
+
+<h2>License:</h2>
+	<p>This work is licensed for use under the Creative Commons Attribution-NonCommercial-ShareAlike license. In summary, you may freely use, modify, and distribute this work as long as:</p>
+	<ul>
+		<li>You give me (Jason Johnston) credit,</li>
+		<li>You do not use this work for commercial purposes, and</li>
+		<li>Any redistribution of this or derivative works is made available under a license identical to this one.</li>
+	</ul>
+	<p>Other uses are allowable with my permission on a case-by-case basis. Contact me at <span class="mail">jj/at\lojjic/period\net</span>.</p>
+	<p>Before using or modifying this work please read the full license at <a href="http://creativecommons.org/licenses/by-nc-sa/1.0/legalcode">http://creativecommons.org/licenses/by-nc-sa/1.0/legalcode</a>.</p>
+
+</body>
+</html>

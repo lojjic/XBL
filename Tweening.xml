@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl">
+
+	<binding id="TweeningElement">
+		<implementation>
+			<field name="x">0</field>
+			<field name="y">0</field>
+			<field name="z">0</field>
+			<field name="width">0</field>
+			<field name="height">0</field>
+
+			<field name="framerate">12</field><!-- frames per second -->
+			<field name="frames">1</field><!-- # of frames to tween -->
+			<field name="acceleration">0</field>
+			<field name="deceleration">0</field>
+
+			<method name="getComputedStyle">
+				<parameter name="prop" />
+				<body>
+					return parseFloat(this.currentStyle ? 
+						this.currentStyle[prop] : //IE
+						document.defaultView.getComputedStyle(this,null)[prop] //W3C
+						) || 0;
+				</body>
+			</method>
+
+			<method name="tween">
+				<body><![CDATA[
+					// List of properties to tween; first value is XBL property, second is style property, third is units:
+					var props = [["x","left","px"], ["y","top","px"], ["z","zIndex",""], ["width","width","px"], ["height","height","px"]];
+
+					if(this._tweenTimer) clearTimeout(this._tweenTimer); //allow only one timer at a time
+					if(this.frames < 1) this.frames = 1; //can't have less than one frame
+
+					// Tween each property:
+					for(var i=0; i<props.length; i++) {
+						var curr = this.getComputedStyle(props[i][1]);
+						var goal = this[props[i][0]];
+						var next = curr + ((goal - curr) / this.frames);
+						this.style[props[i][1]] = next + (props[i][2] || "");
+					}
+					window.status = this.getComputedStyle("zIndex");
+
+					// Prepare next step if any:
+					this.frames--;
+					if(this.frames > 0) {
+						var thisRef = this;
+						this._tweenTimer = setTimeout(function(){thisRef.tween();}, 1000 / this.framerate);
+					}
+				]]></body>
+			</method>
+		</implementation>
+	</binding>
+
+</bindings>

@@ -1,0 +1,2 @@
+*[accesskey] {-moz-binding:url(AccessKey.xml#element);}
+em.accesskey {border-bottom:1px solid; font-style:inherit;}

@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+
+<bindings xmlns:xbl="http://www.mozilla.org/xbl"
+		xmlns="http://www.mozilla.org/xbl"
+		xmlns:h="http://www.w3.org/1999/xhtml">
+		
+	<binding id="helloworld">
+		<content><h:div style="background:#6C6; padding:.5em;">Hello World! Binding Has Been Attached! Test passed.</h:div></content>
+	</binding>
+	
+	<binding id="helloworld-constructor">
+		<implementation>
+			<constructor>
+				var txt = document.createTextNode("Hello World! Binding Has Been Attached! Test passed.");
+				var cont = document.createElement("div");
+				this.style.background = "#6C6";
+				cont.appendChild(txt);
+				this.appendChild(cont);
+			</constructor>
+		</implementation>
+	</binding>
+	
+	<binding id="goodbyeworld">
+		<content><h:div style="background:#F00;">The binding was attached but shouldn't have been! Test failed.</h:div></content>
+	</binding>
+	
+	<binding id="fields">
+		<implementation>
+			<field name="color">'#6C6'</field>
+			<field name="message">'This text and the color are specified in default field values. Test passed.'</field>
+			<constructor>
+				this.style.backgroundColor = this.color;
+				this.firstChild.nodeValue = this.message;
+			</constructor>
+		</implementation>
+	</binding>
+	
+	
+	
+	
+	<binding id="inheritance-base">
+		<implementation>
+			<field name="inheritedText">'This text is inherited from the base binding. Test passed.'</field>
+			<field name="overriddenText"></field>
+			<field name="inheritedColor">'#6C6'</field>
+			<field name="overriddenColor">'red'</field>
+		</implementation>
+	</binding>
+	<binding id="inheritance-derived" extends="#inheritance-base">
+		<implementation>
+			<field name="overriddenText">'This text overrides another text value in the base binding. Test passed.'</field>
+			<field name="overriddenColor">'#6C6'</field>
+			
+			<method name="showInherited">
+				<body>
+					this.style.backgroundColor = this.inheritedColor;
+					this.firstChild.nodeValue = this.inheritedText;
+				</body>
+			</method>
+			<method name="showOverridden">
+				<body>
+					this.style.backgroundColor = this.overriddenColor;
+					this.firstChild.nodeValue = this.overriddenText;
+				</body>
+			</method>
+		</implementation>
+	</binding>
+	
+	<binding id="output">
+		<implementation>
+			<field name="lineNumber">1</field>
+			<method name="print">
+				<parameter name="value" />
+				<body>
+					var item = document.createElement("div");
+						item.appendChild(document.createTextNode(this.lineNumber++ +  ". " + value));
+					this.insertBefore(item, this.firstChild.nextSibling);
+				</body>
+			</method>
+		</implementation>
+	</binding>
+	
+
+	<!--
+	<binding id="theBinding">
+		<implementation>
+			<method name="someMethod">
+				<parameter name="firstParam" />
+				<parameter name="secondParam" />
+				<body><![CDATA[
+					this.output('Method someMethod() called with firstParam="' + firstParam + '", secondParam="' + secondParam + '"');
+				]]></body>
+			</method>
+			
+			<method name="turnRed">
+				<body>this.style.backgroundColor = (this.style.backgroundColor=="red") ? "" : "red";</body>
+			</method>
+			
+			<method name="output">
+				<parameter name="value" />
+				<body>document.getElementById("output").print(value);</body>
+			</method>
+			
+			<field name="_someProperty">null</field>
+			<property name="someProperty" onget="return this._someProperty;">
+				<setter>this._someProperty = val; document.getElementById("output").print('property has been set to "' + val + '"');</setter>
+			</property>
+			
+			<constructor>
+				//this.output("Constructor called on node " + this.nodeName);
+			</constructor>
+		</implementation>
+		
+		<content>
+			This is an anonymous wrapper element in the XBL.
+			<h:div inherits="forwardedattr1,xblattr=forwardedattr2">
+				<children />
+			</h:div>
+		</content>
+		
+		<handlers>
+			<handler event="click" action="this.output('The click was intercepted by the XBL handler.');" />
+			<handler event="mouseover">this.output('The mouseover event was intercepted by the XBL handler.');</handler>
+			<handler event="mouseout">this.output('The mouseout event was intercepted by the XBL handler.');</handler>
+			<handler event="bindingattached">this.output('The bindingattached event was fired and handled.');</handler>
+		</handlers>
+	</binding>
+	
+	<binding id="theBindingWithoutKids">
+		<content>
+			This is some anonymous child text.
+			<h:p>This is an anonymous paragraph child.</h:p>
+		</content>
+	</binding>
+	
+	<binding id="content-before">
+		<handlers>
+			<handler event="bindingattached">document.getElementById('output').print('The bindingattached event was fired and handled on the newly created element.');</handler>
+		</handlers>
+		<content>[XBL Binding Attached!] <children/></content>
+	</binding>
+	
+	<binding id="extension-base">
+		<implementation>
+			<method name="methodOne"><body>return "Base binding";</body></method>
+			<method name="methodTwo"><body>return "Base binding (wrong!)";</body></method>
+		</implementation>
+	</binding>
+	
+	<binding id="extension" extends="#extension-base">
+		<implementation>
+			<method name="methodTwo"><body>return "Derived binding";</body></method>
+		</implementation>
+	</binding>
+	-->
+
+</bindings>

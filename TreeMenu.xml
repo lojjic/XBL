@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl" xmlns:html="http://www.w3.org/1999/xhtml">
+
+	<binding id="node">
+		<implementation>
+			<field name="isBranch">false</field>
+			<field name="isClosed">false</field>
+			
+			<property name="closed" onget="return this.isClosed;">
+				<setter><![CDATA[
+					// set CSS class:
+					this.className = val ? this.className+" closed" : this.className.replace(/closed/,"");
+
+					// change collapser:
+					var c = document.getAnonymousNodes(this)[0];
+						c.firstChild.nodeValue = val ? "+" : "-"; 
+						c.title = (val ? "Open" : "Close") + " Branch"; 
+
+					this.setIcon();
+
+					// store value:
+					this.isClosed = val;
+
+					// force repaint:
+					if(!val) this.refresh();
+
+					// persist state:
+					var id = this.getAttribute("id");
+					if(!id) return;
+					//TODO: insert cookie-setting code
+					
+				]]></setter>
+			</property>
+			
+			<method name="toggleState"><body>this.closed = !this.closed;</body></method>
+			
+			<method name="setIcon">
+				<parameter name="src" />
+				<body><![CDATA[
+					var icon = document.getAnonymousNodes(this)[3];
+					if(!src) {
+						// use list-style-image for icon if any:
+						this.style.listStyleImage = ""; //unhide list-style-image (reset to CSS-specified value)
+						var lsImg = (this.currentStyle) ? this.currentStyle.listStyleImage : document.defaultView.getComputedStyle(this,null).getPropertyValue("list-style-image");
+						if(lsImg && lsImg.indexOf("url(") == 0) src = lsImg.replace(/^url\("?([^"]*)"?\)$/,"$1");
+					}
+					if(src) {
+						icon.src = src;
+						icon.style.display = "";
+					} else {
+						icon.style.display = "none"; //if none, hide the image
+					}
+					this.style.listStyleImage = "none"; //hide the actual list-style-image
+				]]></body>
+			</method>
+			
+			<method name="refresh"><body>this.style.display='none'; this.style.display='';</body></method>
+
+			//TODO: insert code to retrieve cookie with persisted node states
+			
+			<constructor><![CDATA[
+				var i, j;
+				this.nodes = [];
+
+				var v = document.getAnonymousNodes(this)[1];
+				i=this.parentNode.lastChild; while(i.nodeType!=1) i=i.previousSibling; //Find last element in parent
+				if(i==this) v.className += " last-child-outline";
+				else if(v.style.setExpression) v.style.setExpression("height","this.parentNode.offsetHeight"); //hack to make IE set height to 100% of <li>
+				
+				var subs = this.getElementsByTagName("ul");
+				if(subs.length) {
+					this.isBranch = true;
+					this.className += " tree-menu-branch";
+					this.closed = true;
+				} else {
+					this.className += " tree-menu-node-leaf";
+				}
+				this.setIcon();
+			]]></constructor>
+		</implementation>
+		
+		<handlers>
+			<handler event="click"><![CDATA[
+				if(!this.isBranch) return;
+				//check that it's not a submenu that got clicked:
+				var tmp = event.target;
+				while(tmp && tmp.nodeName.toLowerCase() != "ul" && tmp != this) tmp=tmp.parentNode;
+				if(tmp == this) this.toggleState();
+				this.refresh(); // force repaint
+			]]></handler>
+		</handlers>
+		
+		<content>
+			<html:span class="tree-menu-collapser">-</html:span>
+			<html:span class="tree-menu-outline-vertical" />
+			<html:span class="tree-menu-outline-horizontal" />
+			<html:img class="tree-menu-node-icon" /><!-- src is set from list-style-image if any. -->
+			<children />
+		</content>
+	</binding>
+
+</bindings>

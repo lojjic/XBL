@@ -1,0 +1,70 @@
+<html>
+<head>
+	<title>Fisheye Menu test</title>
+	
+	<script type="text/javascript" src="XBL.js"></script>
+	
+	<style type="text/css">
+	@import url(FisheyeMenu.css);
+	
+	* {font-size:12px; font-family:Arial,sans-serif;}
+
+	#no-image {list-style-image:none !important;} /*test what happens when no icon*/
+
+	
+	/* hook up the control panel: */
+	#controller {margin:10em; -moz-binding:url(FisheyeMenu.xml#controller);}
+	#controller th {text-align:right;}
+
+	</style>
+	
+
+</head>
+<body>
+
+	<h1>Test OSX Bar</h1>
+	
+	<ul class="fisheye-menu" id="menu">
+		<li><a href="http://lojjic.net">Label 1</a></li><!-- linked label -->
+		<li>Label 2 <!-- text label with child menu -->
+			<ul>
+				<li><a href="">Submenu</a></li>
+				<li><a href="">Submenu</a></li>
+				<li><a href="">Submenu</a></li>
+			</ul>
+		</li>
+		<li><span></span>Label 3<!-- empty element before text label -->
+			<ul>
+				<li><a href="">Submenu</a></li>
+				<li><a href="">Submenu</a></li>
+				<li><a href="">Submenu</a></li>
+			</ul>
+		</li>
+		<li><span></span><a href="TitleTips-test.html">Label 4</a></li><!-- empty element before linked label -->
+		<li id="no-image"><a href="#">Label 5</a></li>
+		<li><a href="#">Label 6</a></li>
+		<li>Label 7
+			<ul>
+				<li><a href="">Submenu</a></li>
+				<li><a href="">Submenu</a></li>
+				<li><a href="">Submenu</a></li>
+			</ul>
+		</li>
+		<li><a href="#">Label 8</a></li>
+		<li><a href="#">Label 9</a></li>
+		<li><a href="#">Label 10</a></li>
+
+	</ul>
+	
+		
+	
+	<style type="text/css">
+	</style>
+	<div id="controller" title="menu"></div>
+	
+	<p style="margin-top:200em; margin-left:200em; text-align:right; font-size:.8em;">Making the page scroll...</p>
+	
+
+		
+</body>
+</html>

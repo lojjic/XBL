@@ -1,0 +1,17 @@
+/*=== Styles for Fisheye Menu ===*/
+
+.fisheye-menu {-moz-binding:url(FisheyeMenu.xml#menu); margin:0; padding:0; position:absolute;}
+	.fisheye-menu li {-moz-binding:url(FisheyeMenu.xml#icon); list-style-image:url(assets/folder-64x64.png); list-style-type:none; margin:0; padding:0; display:inline;}
+	.fisheye-menu li li {-moz-binding:none; list-style-image:none;}
+	.fisheye-menu ul {background:#FEFEFE; margin:3px 0 0; padding:0; border-top:1px solid #999; margin:3px -6px -3px;}
+	.fisheye-menu ul li {display:block; margin:0; padding:3px 0 3px 6px; border-bottom:1px solid #EEE; font-weight:normal;}
+	.fisheye-menu ul li li {border-left:4px solid #CCC;}
+	.fisheye-menu :link, .fisheye-menu :visited {display:block; color:#000; text-decoration:none;}
+	.fisheye-menu ul :link, .fisheye-menu ul :visited {display:block; margin:-3px 0 -3px -6px; padding:3px 1em 3px 6px; color:#000; text-decoration:none;}
+	.fisheye-menu ul :link:hover, .fisheye-menu ul :visited:hover {background:#EEE;}
+
+.fisheye-menu-background {background:#F0F0F0; border:1px solid #9F9F9F;}
+.fisheye-menu-icon {} /*the container for the icon image or alt*/
+.fisheye-menu-icon-img {} /*the icon image itself*/
+.fisheye-menu-icon-alt {border:1px solid #999;} /*text shown when no image*/
+.fisheye-menu-popup {width:120px; background:#EEE; border:1px solid #999; margin:0; padding:3px 6px; font-weight:bold;}
