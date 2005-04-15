@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<bindings xmlns="http://www.mozilla.org/xbl" xmlns:h="http://www.w3.org/1999/xhtml">
+	<binding id="element">
+		
+		<implementation>
+			<field name="timer" />
+			<field name="actualValue" />
+			
+			<method name="update">
+				<body>
+					var eltWidth = document.defaultView.getComputedStyle(this, null).getPropertyValue("width");
+					var txtWidth = this.offsetWidth;
+					if(txtWidth > parseFloat(eltWidth)) {
+						//BLAHBLAHBLAH
+					}
+				</body>
+			</method>
+		
+			<constructor><![CDATA[
+				this.actualValue = this.firstChild.nodeValue;
+				this.timer = setInterval(this., 500);
+			]]></constructor>
+		</implementation>
+	</binding>
+</bindings>

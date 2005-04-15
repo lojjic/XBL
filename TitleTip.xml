@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl">
+	<binding id="PopupBase">
+		<implementation>
+			<constructor>
+			</constructor>
+		</implementation>
+		<handlers>
+			<handler event="mousedown" action="event.stopPropagation();" />
+		</handlers>
+	</binding>
+
+	<binding id="TitleTip" extends="#PopupBase">
+		<implementation>
+			<field name="type">"title-tip"</field>
+			
+			<constructor>
+			</constructor>
+		</implementation>
+	</binding>
+	
+	<binding id="TitledElement">
+		<implementation>
+			<field name="titleTipPopup" />
+		</implementation>
+		<handlers>
+			<handler event="mouseover">
+				var pop = this.titleTipPopup = document.createElement("div");
+				pop.className = "title-tip";
+				document.body.appendChild(pop);
+			</handler>
+			<handler event="mouseout">
+				var pop = this.titleTipPopup;
+				if(pop) document.body.removeChild(pop);
+				this.titleTipPopup = null;
+			</handler>
+		</handlers>
+	</binding>
+</bindings>

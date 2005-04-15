@@ -218,7 +218,7 @@
 if(kid.bindingOwner == this) {
    // insert code to find real firstChild in IE
 }</code></pre>
-	<p>What's going on above: The .bindingOwner property only exists on anonymous XBL content nodes, and points to the bound element.  Therefore if the bound element's firstChild has a .bindingOwner pointing back to the bound element, you know that the anonymous content model is not supported and you can create a conditional statement to find the correct node.  In this way a binding can function in both models.</p>
+	<p>What's going on above: The <code>.bindingOwner</code> property only exists on anonymous XBL content nodes, and points to the bound element.  Therefore if the bound element's <code>firstChild</code> has a <code>.bindingOwner</code> pointing back to the bound element, you know that the anonymous content model is not supported and you can create a conditional statement to find the correct node.  In this way a binding can function in both models.</p>
 	
 	<h3>Time of Binding Attachment:</h3>
 	<p>Unlike Mozilla's XBL implementation which attached bindings to elements as soon as those elements are loaded, this library has to wait until the entire document is loaded. In some ways this makes things easier (you can be sure that everything is already there) but it is different nonetheless and must be taken into account.</p>

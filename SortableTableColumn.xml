@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<!-- XXX - this doesn't work in Mozilla. Why? Maybe can't attach bindings to a <th>? -->
+
+<bindings xmlns="http://www.mozilla.org/xbl">
+	<binding id="column-header">
+		<implementation>
+			<field name="column">
+				var i=0, elt=this;
+				while(elt.previousSibling) {
+					elt=elt.previousSibling;
+					if(elt.nodeType==1) {
+						if(elt.getAttribute("colspan")) i=i + parseFloat(elt.getAttribute("colspan"));
+						else i++;
+					}
+				} i;
+			</field>
+		
+			<field name="lastSorted">1</field>
+			
+			<field name="_sorted">0</field>
+			<property name="sorted" onget="return this._sorted;">
+				<setter><![CDATA[
+					if(val==this._sorted) return; //do nothing if already sorted that way
+					this._sorted = val;
+					this.className = this.className.replace(/\s*sortable-table-column-sorted-(up|down)\s*/g, " ");
+					if(val==0) return; //do nothing else if no sort
+						
+					var i;
+					var beginSort=new Date(); //for testing total time
+
+					function stripWhitespaceNodes(parent) {  //strips non-element nodes from between elements
+						var elts=parent.childNodes;
+						for(var i=0;i<elts.length;i++) {
+							if(elts[i].nodeType!=1) {
+								parent.removeChild(elts[i]);
+								i--; //child is gone, so length is one less
+							}
+						}
+						parent._textNodesStripped=true;
+					}
+
+					//get following tbody:
+					var tbody=this.parentNode.parentNode;
+					while((!tbody.localName || tbody.localName.toLowerCase()!="tbody") && tbody.nextSibling) tbody=tbody.nextSibling;
+					var table=tbody.parentNode;
+
+					//don't allow clicking to build up:
+					//window.addEventListener("click",SortableTableColumn._cancelEvent,true);
+
+					//remove sort from other column headers:
+					var hdrs = this.parentNode.childNodes;
+					for(i=0; i<hdrs.length; i++) {
+						if(hdrs[i] != this && hdrs[i].sorted) hdrs[i].sorted = 0;
+					}
+
+					//set sort direction:
+					this.className += " sortable-table-column-sorted-" + (val>0 ? "up" : "down");
+
+					//remove whitespace between rows:
+					if(!tbody._textNodesStripped) stripWhitespaceNodes(tbody);
+
+					//sort rows within array:
+					var allRows=tbody.childNodes;
+					var sortCells=[];
+					for(i=0;i<allRows.length;i++) {
+						//remove whitespace between cells:
+						if(!allRows[i]._textNodesStripped) stripWhitespaceNodes(allRows[i]);
+
+						var thisCell=allRows[i].childNodes[this.column];
+						if (!thisCell.row) thisCell.row=allRows[i]; //cache row as prop of text node (perf)
+						if (!thisCell.val) {
+							var txtNode=thisCell;
+							while(txtNode.firstChild) txtNode=txtNode.firstChild; //get deepest firstChild node
+							thisCell.val = (txtNode.nodeValue) ? txtNode.nodeValue.replace(/^\\s*/,"").toUpperCase() : ""; //cache text value (perf)
+							if(this.className.match(/numeric-sort/)) {
+								thisCell.val = parseFloat(thisCell.val);
+								if(isNaN(thisCell.val)) thisCell.val = -999999999;
+							}
+							if(this.className.match(/date-sort/)) {
+								var parts = thisCell.val.split("/");
+								if(parts.length == 3) thisCell.val = parts[2] + parts[0] + parts[1];
+								else thisCell.val = "99/99/9999";
+							}
+						}
+						sortCells[sortCells.length]=thisCell;
+					}
+
+					function byValProp(a,b) {  //sorts elements by .val property
+						return (a.val>b.val) ? 1 : (a.val<b.val) ? -1 : 0;
+					}	
+					sortCells.sort(byValProp); //Sort it!
+
+					//write sorted rows:
+					for(var i=0;i<sortCells.length;i++) {
+						if(val==-1) tbody.insertBefore(sortCells[i].row,tbody.firstChild);
+						else tbody.appendChild(sortCells[i].row);
+					}
+
+					var endSort=new Date();
+					window.status="Sorting completed on " + allRows.length + " rows.  (" + (endSort - beginSort)/1000 + " sec.)";
+
+					//wait a bit before allowing clicks:
+					//setTimeout('window.removeEventListener("click",SortableTableColumn._cancelEvent,true)',1);
+
+					this.lastSorted = val; //remember last sort direction
+				]]></setter>
+			</property>
+		</implementation>
+		
+		<handlers>
+			<handler event="click" action="this.sorted == 0 ? this.sorted = this.lastSorted : this.sorted *= -1" />
+		</handlers>
+	</binding>
+</bindings>

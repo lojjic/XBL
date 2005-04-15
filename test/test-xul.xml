@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Test XBL Bindings</title>
+	
+	<script type="text/javascript"><![CDATA[
+	
+	function propChanged() {
+		if(window.event.propertyName == "innerHTML") alert('innerHTML changed!');
+		if(window.event.propertyName == "madeUpProperty") alert('madeUpProperty is now ' + event.srcElement.madeUpProperty);
+	}
+	
+	
+	
+	function clicked() {
+		document.getElementById("target").innerHTML = "<h1>Hellooooo!</h1>";
+	}
+	
+	function loaded() {
+		document.getElementById("target").attachEvent("onpropertychange", propChanged);
+	}
+	
+//	window.onload = loaded;
+	
+	
+	
+	function makeXULPopup(btn) {
+		var p = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul","popup");
+		p.appendChild(document.createTextNode("blah"));
+		document.documentElement.appendChild(p);
+		p.showPopup(btn,-1,-1,"popup","bottomright","topleft");
+	}
+	
+	]]></script>
+	
+</head>
+<body>
+
+	<div id="target">This element's innerHTML will change. If the onpropertychange event is fired, you should see an alert.</div>
+	<button onclick="clicked()">Click Me!</button>
+	<button onclick="document.getElementById('target').madeUpProperty = 'bleh'">Click Me!</button>
+	
+	<hr />
+	
+	<xul:button onclick="makeXULPopup(this);" xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">Create XUL Popup</xul:button>
+	
+</body>
+</html>

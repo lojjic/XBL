@@ -1,0 +1,139 @@
+<PUBLIC:COMPONENT lightWeight="true" xmlns:xbl="http://www.mozilla.org/xbl">
+
+	<PUBLIC:PROPERTY NAME="xblChildNodes" GET="getXBLChildNodes" />
+	<!--<PUBLIC:PROPERTY NAME="bindingOwner" GET="getBindingOwner" />-->
+	<PUBLIC:PROPERTY NAME="anonymousParent" GET="getAnonymousParent" />
+	
+	<!--
+	<PUBLIC:PROPERTY NAME="childNodes" GET="getChildNodes" />
+	<PUBLIC:PROPERTY NAME="firstChild" GET="getFirstChild" /
+	<PUBLIC:PROPERTY NAME="parentNode" GET="getParentNode" />
+	<PUBLIC:PROPERTY NAME="previousSibling" GET="getPreviousSibling" />
+	<PUBLIC:PROPERTY NAME="nextSibling" GET="getNextSibling" />
+	-->
+
+	<PUBLIC:EVENT ID="bindingAttachedEvent" NAME="onbindingattached" />
+	<PUBLIC:EVENT ID="bindingDetachedEvent" NAME="onbindingdetached" />
+	
+	<PUBLIC:METHOD NAME="_xblFireBindingAttachedEvent" /><!-- used to fire custom event from outside HTC -->
+
+	<!--
+	<PUBLIC:ATTACH EVENT="oncontentready" HANDLER="onContentReady" />
+	<PUBLIC:ATTACH EVENT="onreadystatechange" HANDLER="onElementReady" />
+	-->
+	<PUBLIC:ATTACH EVENT="ondocumentready" HANDLER="onHTCAttached" />
+	<!--<PUBLIC:ATTACH EVENT="ondetach" HANDLER="onHTCDetached" />-->
+
+	<SCRIPT LANGUAGE="JScript">
+	
+	function onContentReady() {
+		alert('content ready: ' + element.nodeName);
+	}
+	
+	function onElementReady() {
+		if(element.readyState=="complete") alert('element ready: ' + element.nodeName);
+	}
+	
+	//=== Store initial values of DOM properties: ===//
+	// This should happen before the <PROPERTY> tags above override the initial values, 
+	// so we have a way to get to them later. We have to update these when calling our 
+	// custom DOM manipulation methods so they will return correct values.
+	
+	// At this point the element's contents may not be fully created, so we only know
+	// the parentNode and the previousSibling for sure.
+	/*
+	element._xblRealChildNodes  = element.childNodes; 
+	var i, kid
+	alert(element.childNodes.length);
+	for(i=0; (kid=element.childNodes[i]); i++) {
+		element._xblRealChildNodes[i] = kid;
+	}
+
+	//element._xblRealFirstChild  = element.firstChild;
+	//element._xblRealLastChild   = element.lastChild;
+	var parent = element._xblRealParentNode  = element.parentElement; //parentElement works here, parentNode doesn't.
+	element._xblRealChildNodes = [];
+	
+	if(!parent._xblRealChildNodes) parent._xblRealChildNodes = [];
+	parent._xblRealChildNodes[parent._xblRealChildNodes.length];
+	
+	var prev = element._xblRealPrevSibling = element.previousSibling;
+	//alert(prev);
+	if(prev) prev._xblRealNextSibling = element;
+	if(prev && prev.nodeType==3) { //text prev-siblings need to be done manually:
+		prev._xblRealParentNode = parent;
+		var prev2 = prev._xblRealPrevSibling = prev.previousSibling;
+		if(prev2) prev2._xblRealNextSibling = prev;
+	}
+	*/
+	
+
+	function onHTCAttached() {
+//		alert('document ready');
+		var elt = element;
+		
+		// Add ElementXBL methods:
+		for(var x in XBL.ElementXBL) {
+			if(elt[x]) elt["_xblReal"+x.charAt(0).toUpperCase()+x.substring(1)] = elt[x]; //make backup if already exists, such as for overridden DOM methods.
+			elt[x] = XBL.ElementXBL[x];
+		}
+
+		// See if there's a binding set in the CSS, and if so attach it:
+		if(!elt.currentStyle) return;
+		var binding = elt.currentStyle.getAttribute("moz-binding"); //IE strangely drops the "-" prefix on -moz-binding
+		if(!binding) return;
+		var m = binding.match(/\s*url\s*\(\s*([^\)]+)\)\s*/); //extract the binding URL
+		if(!m) return; //illegal binding value; exit.
+		
+		elt.addBinding(m[1]);
+		
+	}
+	
+	function onHTCDetached() {
+	}
+	
+/*
+	//=== Redefined DOM property getters: ===//
+	function getChildNodes() {
+		var x;
+		return (x=element._xblGetExplicitChildren) ? x() : [];
+	}
+	function getFirstChild() {
+		return element.childNodes[0];
+	}
+	function getParentNode() {
+		return element._xblRealParentNode;
+	}
+	function getPreviousSibling() {
+		return element._xblRealPrevSibling;
+	}
+	function getNextSibling() {
+		return element._xblRealNextSibling;
+	}
+*/
+	
+	//=== ElementXBL property getters: ===//
+	function getXBLChildNodes() {
+		return element.document.getAnonymousNodes(element);
+	}
+	function getBindingOwner() {
+		return element._xblBindingOwner || null;
+	}
+	function getAnonymousParent() {
+		return element._xblRealParentNode;
+	}
+	
+	//=== Custom Event Triggers: ===//
+	function _xblFireBindingAttachedEvent() {
+		var attEvt = createEventObject();
+		attEvt.cancelBubble=true;
+		bindingAttachedEvent.fire(attEvt);
+	}
+	function _xblFireBindingDetachedEvent() {
+		var detEvt = createEventObject();
+		detEvt.cancelBubble=true;
+		bindingDetachedEvent.fire(detEvt);
+	}
+	
+	</SCRIPT>
+</PUBLIC:COMPONENT>
