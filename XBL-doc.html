@@ -24,8 +24,6 @@
 	<p>Despite its power and flexibility, XBL remains unused on the Web, mostly because it is only implemented in browsers based on Mozilla.org's Gecko rendering engine.  By using this script, XBL (or at least a subset thereof) will work in a much larger pool of browsers and therefore can become viable for widespread use.</p>
 
 
-
-
 <h2>How To Use It:</h2>
 	<p>Include the following script reference in the head of your document:</p>
 	<pre><code>&lt;script type="text/javascript" src="path/to/XBL.js"&gt;&lt;/script&gt;</code></pre>
@@ -37,8 +35,6 @@
 
 	<p>For more information on creating XBL bindings see the <a href="http://www.mozilla.org/catalog/architecture/xbl/">documentation on Mozilla.org</a>, especially the <a href="http://www.xulplanet.com/tutorials/xultu/introxbl.html">Introduction to XBL at XULPlanet</a>.</p>
 	<p><strong>Note:</strong> Some XBL features may not behave as expected using this implementation. See "Caveats" below for details.</p>
-
-
 
 
 <h2>Implementation:</h2>
@@ -195,10 +191,6 @@
 			</dl>
 		</dd>
 	</dl>
-	
-
-
-
 
 
 <h2>Caveats:</h2>
@@ -230,12 +222,8 @@ if(kid.bindingOwner == this) {
 	<p>It may be obvious but bears repeating that scripts within your XBL bindings must take into account MSIE's particular DOM quirks, omissions, and proprietary features.  For example, IE's proprietary event model differs greatly from the W3C-standard DOM2 Events used in Mozilla, so you must take this into consideration within your XBL event handlers.  This is no different than DOM scripting in other situations.</p>
 
 
-
-
 <h2>Compatibility:</h2>
 	<p>Known to work in MSIE 5 and 6 on Windows.  Technically, support for other browsers should be possible as long as they provide a way to import and read external XML files via script.  I welcome assistance on adding support for other browsers.</p>
-
-
 
 
 <h2>Demonstrations:</h2>
@@ -250,32 +238,35 @@ if(kid.bindingOwner == this) {
 	</ul>
 
 
-
-
 <h2>To Do:</h2>
 	<ul>
 		<li>I would <em>love</em> to make this support XBL's anonymous content model; it's one of XBL's greatest strengths, keeping binding attachment side-effect-free... after all, a stylistic behavior should not alter the document structure.  Technically I believe it should be possible to hack the IE DOM to support anonymous content: upon binding attachment I'd have to store the element's .childNodes, .parentNode, etc. initial properties, then override all the native DOM methods (and property getters/setters -- would require using HTC) with ones that take the anonymous content nodes into account.  It is debatable whether this would be worth the trouble, since it would involve a <em>lot</em> of code, basically an entire DOM (re-)implementation.  Such a reimplementation wouldn't extend to CSS matching, though this probably wouldn't be a huge problem since the only CSS selectors affected would be the child (&gt;) and sibling (+) selectors, neither of which IE currently supports anyway.</li>
-		<li>The bindingattached and bindingdetached events are not fired; I believe the only way to get IE to support these custom events is to use HTCs, and I've been unable to find an efficient way of doing that so far.</li>
+		<li>The bindingattached and bindingdetached events are not fired; I believe the only way to get IE to support these custom events is to use HTCs, and I've been unable to find an efficient way of doing that so far. The <a href="http://lojjic.net/script-library/IEtoW3C-doc.html">IEtoW3C</a> library would probably work but it's inefficient.</li>
 		<li>Binding removal. This isn't a priority since even Mozilla has problems doing this.</li>
 		<li>Add any other unsupported features and fix partially supported ones.</li>
 	</ul>
 
 
-<h2>Changelog:</h2>
-	<ul>
-		<!--<li>2004-02-08: Public Release of Initial Working Version</li>-->
-	</ul>
-
-
 <h2>License:</h2>
-	<p>This work is licensed for use under the Creative Commons Attribution-NonCommercial-ShareAlike license. In summary, you may freely use, modify, and distribute this work as long as:</p>
+
+	<p>The contents of this file are subject to the Mozilla Public License Version 1.1 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at <a href="http://www.mozilla.org/MPL/">http://www.mozilla.org/MPL/</a></p>
+	
+	<p>Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF
+	ANY KIND, either express or implied. See the License for the specific language governing rights and
+	limitations under the License.</p>
+	
+	<p>The Initial Developer of the Original Code is Jason Johnston (jj{at}lojjic[dot]net). Portions created by
+	the Initial Developer are Copyright (C) 2004 the Initial Developer. All Rights
+	Reserved.</p>
+	
+	<!--
+	<p>Contributor(s):</p>
 	<ul>
-		<li>You give me (Jason Johnston) credit,</li>
-		<li>You do not use this work for commercial purposes, and</li>
-		<li>Any redistribution of this or derivative works is made available under a license identical to this one.</li>
+		<li>contributor name</li>
 	</ul>
-	<p>Other uses are allowable with my permission on a case-by-case basis. Contact me at <span class="mail">jj/at\lojjic/period\net</span>.</p>
-	<p>Before using or modifying this work please read the full license at <a href="http://creativecommons.org/licenses/by-nc-sa/1.0/legalcode">http://creativecommons.org/licenses/by-nc-sa/1.0/legalcode</a>.</p>
+	-->
+	
+	<p>This code is provided for you to use free of charge.  If you find it useful please consider making a donation to help me continue to create tools like this one.  You can find my contact info at <a href="http://lojjic.net">http://lojjic.net</a>.</p>
 
 </body>
 </html>

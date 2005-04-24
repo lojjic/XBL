@@ -5,11 +5,9 @@
 **  eXtensible Binding Language (XBL) for MSIE/Win (and 
 **  hopefully others someday). For usage and other details 
 **  see http://lojjic.net/xbl/XBL-doc.html
-**  
-**  This work is licensed for use under the Creative Commons
-**  Attribution-NonCommercial-ShareAlike license.  Before using 
-**  or modifying this work please read the full license at 
-**  http://creativecommons.org/licenses/by-nc-sa/1.0/legalcode
+**
+**  The contents of this file are subject to the Mozilla Public License
+**  Version 1.1; for more details see the documentation file.
 */
 
 	
@@ -26,7 +24,7 @@ ElementXBL.prototype = {
 		var i, j, k, elt, elt2, elt3;
 		var bindingDocURL = bindingURL.split("#")[0];
 		
-		window.status = "Attaching XBL binding '" + bindingURL + "'";
+		//window.status = "Attaching XBL binding '" + bindingURL + "'";
 
 		var bindingDoc = document.loadBindingDocument(bindingDocURL);
 
@@ -147,7 +145,7 @@ ElementXBL.prototype = {
 			var fldInit = elt.firstChild;
 			if(!fldName || !fldInit || fldInit.nodeType!=3) continue; //skip if no name or contents
 			// Set initial value by evaluating script contents:
-			this._xblTmp = function(){ return eval(fldInit.nodeValue) };
+			this._xblTmp = function(){ return eval(fldInit.nodeValue); };
 			this[fldName] = this._xblTmp();
 		}
 
@@ -195,7 +193,7 @@ ElementXBL.prototype = {
 			var hdlrEvt = elt.getAttribute("event");
 			var hdlrAct = elt.getAttribute("action"); //attr gets precedence.
 			if(!hdlrAct && elt.firstChild) hdlrAct = elt.firstChild.nodeValue; //fallback to text content
-			var hdlrPhase = elt.getAttribute("phase"); 
+			var hdlrPhase = elt.getAttribute("phase");
 			var attachTo = elt.getAttribute("attachto") || "element";
 			if(hdlrEvt && hdlrAct) {
 				//build code for filtering events:
@@ -213,7 +211,7 @@ ElementXBL.prototype = {
 						}
 					}
 				}
-				if(pha) evtFilters += "if('" + pha + "'=='target' && event.srcElement!=this) return;"  // if target phase specified, only run script if at target.
+				if(pha) evtFilters += "if('" + pha + "'=='target' && event.srcElement!=this) return;";  // if target phase specified, only run script if at target.
 				//NOTE: this currently only handles "target" or "bubbling" phases; capturing may be implementable using the IEtoW3C library, but ignoring for now since IE doesn't do capturing natively.
 				
 				var eltHdlrs = this._xblHandlers; // store all handlers in special property - seems hackish, is there another way?
@@ -229,7 +227,7 @@ ElementXBL.prototype = {
 				var hdlrFunc = function() {
 					var hdlrs = thisRef._xblHandlers[window.event.type];
 					for(var i=0; i<hdlrs.length; i++) {
-						thisRef._xblTmp = hdlrs[i]; 
+						thisRef._xblTmp = hdlrs[i];
 						thisRef._xblTmp();
 					}
 				};
@@ -274,7 +272,7 @@ DocumentXBL.prototype = {
 		var getProgID = function() {
 			for(var i=0; i<progIDs.length; i++) { try {new ActiveXObject(progIDs[i]); return progIDs[i];} catch(e) {} }
 			throw "No MSXML found on system; cannot retrieve XBL document.";
-		}
+		};
 		var doc = new ActiveXObject(getProgID());
 
 		// load the XBL doc:
@@ -286,7 +284,7 @@ DocumentXBL.prototype = {
 		// same binding is attached to an element.
 		function isXBLElt(element, tagName) {
 			return (element.namespaceURI == XBL_NS && element.nodeName.replace(/^[^:]:/, "") == tagName);
-		}
+		};
 		for(i=0; (elt=doc.documentElement.childNodes[i]); i++) {
 			if(isXBLElt(elt, "binding")) {
 				var b = document._xblBindingsData[documentURL + "#" + elt.getAttribute("id")] = {
@@ -347,9 +345,9 @@ DocumentXBL.prototype = {
 }
 
 // Add DocumentXBL interface's properties and methods to document:
-for(var x in DocumentXBL.prototype)
+for(var x in DocumentXBL.prototype) {
 	if(!document[x]) document[x] = DocumentXBL.prototype[x];
-
+}
 
 if(window.attachEvent) { //Limited to IE/Win
 	window.attachEvent("onload", function() {
