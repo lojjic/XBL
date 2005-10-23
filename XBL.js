@@ -4,7 +4,7 @@
 **  This is an implementation of major parts of the 
 **  eXtensible Binding Language (XBL) for MSIE/Win (and 
 **  hopefully others someday). For usage and other details 
-**  see http://lojjic.net/xbl/XBL-doc.html
+**  see http://svn.lojjic.net/XBL/trunk/XBL-doc.html
 **
 **  The contents of this file are subject to the Mozilla Public License
 **  Version 1.1; for more details see the documentation file.
@@ -24,13 +24,11 @@ ElementXBL.prototype = {
 		var i, j, k, elt, elt2, elt3;
 		var bindingDocURL = bindingURL.split("#")[0];
 		
-		//window.status = "Attaching XBL binding '" + bindingURL + "'";
-
 		var bindingDoc = document.loadBindingDocument(bindingDocURL);
 
 		function isXBLElt(element, tagName) {
 			return (element.namespaceURI == XBL_NS && element.nodeName.replace(/^[^:]:/, "") == tagName);
-		}
+		};
 
 		var binding = document._xblBindingsData[bindingURL];
 		if(!binding) return; //requested binding does not exist!
@@ -245,7 +243,6 @@ ElementXBL.prototype = {
 		// Fire bindingattached event:
 		// Not yet implemented. Need to use HTC for custom events?
 
-		window.status = "";
 		this._xblTmp = null; //cleanup
 	},
 
