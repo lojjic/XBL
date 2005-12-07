@@ -50,17 +50,23 @@
 				<li><a href="">Submenu</a></li>
 			</ul>
 		</li>
-		<li><a href="#">Label 8</a></li>
-		<li><a href="#">Label 9</a></li>
-		<li><a href="#">Label 10</a></li>
-
 	</ul>
 	
 		
 	
 	<style type="text/css">
 	</style>
-	<div id="controller" title="menu"></div>
+	<div id="controller" title="menu">
+		<p><input type="button" onclick="
+			var menu = document.getElementById('menu');
+			var item = document.createElement('li');
+			var link = document.createElement('a');
+			link.href = 'http://lojjic.net';
+			link.appendChild(document.createTextNode('extra'));
+			item.appendChild(link);
+			menu.appendChild(item);
+		" value="Add Item" /></p>
+	</div>
 	
 	<p style="margin-top:200em; margin-left:200em; text-align:right; font-size:.8em;">Making the page scroll...</p>
 	
