@@ -1,39 +1,84 @@
 <?xml version="1.0"?>
-<bindings xmlns="http://www.mozilla.org/xbl">
-	<binding id="PopupBase">
-		<implementation>
-			<constructor>
-			</constructor>
-		</implementation>
-		<handlers>
-			<handler event="mousedown" action="event.stopPropagation();" />
-		</handlers>
-	</binding>
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml">
 
-	<binding id="TitleTip" extends="#PopupBase">
-		<implementation>
-			<field name="type">"title-tip"</field>
-			
-			<constructor>
-			</constructor>
-		</implementation>
-	</binding>
-	
 	<binding id="TitledElement">
 		<implementation>
-			<field name="titleTipPopup" />
+			<constructor>
+				var txt = document.createTextNode(this.title);
+				this.getPopup().appendChild(txt);
+			</constructor>
+			
+			<method name="getPopup">
+				<body>
+					return document.getAnonymousNodes(this)[0];
+				</body>
+			</method>
 		</implementation>
+		
 		<handlers>
 			<handler event="mouseover">
-				var pop = this.titleTipPopup = document.createElement("div");
-				pop.className = "title-tip";
-				document.body.appendChild(pop);
+				this.getPopup().show();
+				this._origTitle = this.title;
+				this.title = "";
+				event.stopPropagation();
 			</handler>
+			
 			<handler event="mouseout">
-				var pop = this.titleTipPopup;
-				if(pop) document.body.removeChild(pop);
-				this.titleTipPopup = null;
+				this.getPopup().hide();
+				this.title = this._origTitle;
+			</handler>
+			
+			<handler event="mousemove">
+				this.getPopup().update(event);
 			</handler>
 		</handlers>
+		
+		<content>
+			<html:span class="title-tip-popup" />
+			<children />
+		</content>
+	</binding>
+	
+	<binding id="TitleTipPopup">
+		<implementation>
+			<method name="show">
+				<body>
+					this.style.display = "block";
+				</body>
+			</method>
+			<method name="hide">
+				<body>
+					this.style.display = "none";
+				</body>
+			</method>
+			<method name="update">
+				<parameter name="event" />
+				<body>
+					var thisRef = this;
+					function length(prop) {
+						return parseFloat(getComputedStyle(thisRef, null).getPropertyValue(prop));
+					}
+					
+					var x = event.clientX + 12;
+					var y = event.clientY + 12;
+					var w = length("width");
+					var h = length("height");
+					
+					var over;
+					if((over = x + w - document.body.clientWidth) > 0) x -= over;
+					if((over = y + h - document.body.clientHeight) > 0) y -= over;
+					
+					this.style.left = x + "px";
+					this.style.top  = y + "px";
+				</body>
+			</method>
+		</implementation>
+		
+		<content>
+			<html:span class="title-tip-popup-inner">
+				<children />
+			</html:span>
+		</content>
 	</binding>
 </bindings>

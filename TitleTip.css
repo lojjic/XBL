@@ -1,0 +1,19 @@
+*[title] {-moz-binding:url(TitleTip.xml#TitledElement);}
+
+.title-tip-popup {
+	-moz-binding:url(TitleTip.xml#TitleTipPopup);
+	display:none;
+	position:fixed;
+	top:0; left:0;
+	width:250px;
+	color:#FFF; text-decoration:underline overline;
+}
+
+.title-tip-popup-inner {
+	display:block;
+	border:1px solid;
+	padding:.5em;
+	font-weight:normal;
+	color:#000;
+	background:#FFF;
+}
