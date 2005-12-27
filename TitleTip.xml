@@ -1,36 +1,31 @@
 <?xml version="1.0"?>
 <bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:html="http://www.w3.org/1999/xhtml">
 
 	<binding id="TitledElement">
 		<implementation>
-			<constructor>
-				var txt = document.createTextNode(this.title);
-				this.getPopup().appendChild(txt);
-			</constructor>
-			
-			<method name="getPopup">
-				<body>
-					return document.getAnonymousNodes(this)[0];
-				</body>
-			</method>
+			<field name="titleTipPopup">document.getAnonymousNodes(this)[0]</field>
 		</implementation>
 		
 		<handlers>
 			<handler event="mouseover">
-				this.getPopup().show();
+				if(event.titleTipHandled) return; //only handle once
+				this.titleTipPopup.updateContents(this);
+				this.titleTipPopup.updatePosition(event);
+				this.titleTipPopup.show();
 				this._origTitle = this.title;
-				this.title = "";
-				event.stopPropagation();
+				this.title = "&#160;"; //prevent native tip on this and parents
+				event.titleTipHandled = true;
 			</handler>
 			
 			<handler event="mouseout">
-				this.getPopup().hide();
-				this.title = this._origTitle;
+				this.titleTipPopup.hide();
+				if(this._origTitle) this.title = this._origTitle;
 			</handler>
 			
 			<handler event="mousemove">
-				this.getPopup().update(event);
+				this.titleTipPopup.updatePosition(event);
 			</handler>
 		</handlers>
 		
@@ -47,14 +42,35 @@
 					this.style.display = "block";
 				</body>
 			</method>
+			
 			<method name="hide">
 				<body>
 					this.style.display = "none";
 				</body>
 			</method>
-			<method name="update">
+			
+			<method name="updateContents">
+				<parameter name="element" />
+				<body><![CDATA[
+					while(this.firstChild) this.removeChild(this.firstChild);
+					
+					var title = document.createTextNode(element.title);
+					this.appendChild(title);
+					
+					for(var e = element; e != null; e = e.parentNode) {
+						if(e.href) {
+							var hrefWrap = document.createElement("span");
+							hrefWrap.className = "title-tip-href";
+							hrefWrap.appendChild(document.createTextNode(e.href));
+							this.appendChild(hrefWrap);
+						}
+					}
+				]]></body>
+			</method>
+			
+			<method name="updatePosition">
 				<parameter name="event" />
-				<body>
+				<body><![CDATA[
 					var thisRef = this;
 					function length(prop) {
 						return parseFloat(getComputedStyle(thisRef, null).getPropertyValue(prop));
@@ -71,7 +87,7 @@
 					
 					this.style.left = x + "px";
 					this.style.top  = y + "px";
-				</body>
+				]]></body>
 			</method>
 		</implementation>
 		

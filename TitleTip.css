@@ -17,3 +17,8 @@
 	color:#000;
 	background:#FFF;
 }
+
+.title-tip-href {
+	display:block;
+	font-style:italic;
+}
