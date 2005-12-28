@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml">
+
+	<binding id="Window">
+		<handlers>
+			<handler event="mousedown">
+				// make z-index the highest by using the current time:
+				this.style.zIndex = new Date().getTime();
+			</handler>
+		</handlers>
+		
+		<content>
+			<html:div class="window-title-bar" xbl:inherits="xbl:text=title"></html:div>
+			<html:div class="window-resizer" />
+			<html:div class="window-content">
+				<children />
+			</html:div>
+		</content>
+	</binding>
+	
+	<binding id="WindowTitleBar">
+		<implementation>
+			<field name="dragging">false</field>
+			<field name="xOffset">0</field>
+			<field name="yOffset">0</field>
+			
+			<method name="updatePosition">
+				<parameter name="event" />
+				<body><![CDATA[
+					var win = this.parentNode;
+					win.style.left = (event.clientX + document.body.scrollLeft - this.xOffset) + "px";
+					win.style.top = (event.clientY + document.body.scrollTop - this.yOffset) + "px";
+				]]></body>
+			</method>
+		</implementation>
+		<handlers>
+			<handler event="mousedown">
+				this.xOffset = event.clientX + document.body.scrollLeft - parseFloat(getComputedStyle(this.parentNode, null).getPropertyValue("left"));
+				this.yOffset = event.clientY + document.body.scrollTop - parseFloat(getComputedStyle(this.parentNode, null).getPropertyValue("top"));
+				
+				var thisRef = this;
+				var moveListener = function(event) {
+					thisRef.updatePosition(event);
+				};
+				var clearListener = function() {
+					window.removeEventListener("mousemove", moveListener, true);
+					window.removeEventListener("mouseup", clearListener, true);
+				};
+				window.addEventListener("mousemove", moveListener, true);
+				window.addEventListener("mouseup", clearListener, true);
+			</handler>
+		</handlers>
+	</binding>
+	
+	<binding id="WindowResizer">
+		<implementation>
+			<field name="xStart">0</field>
+			<field name="yStart">0</field>
+			
+			<method name="updateSize">
+				<parameter name="event" />
+				<body><![CDATA[
+					var winX = parseFloat(getComputedStyle(this.parentNode, null).getPropertyValue("left"));
+					var winY = parseFloat(getComputedStyle(this.parentNode, null).getPropertyValue("top"));
+					
+					this.parentNode.style.width = (event.clientX + document.body.scrollLeft - winX) + "px";
+					this.parentNode.style.height = (event.clientY + document.body.scrollTop - winY) + "px";
+				]]></body>
+			</method>
+		</implementation>
+		
+		<handlers>
+			<handler event="mousedown">
+				var thisRef = this;
+				var moveListener = function(event) {
+					thisRef.updateSize(event);
+				};
+				var clearListener = function() {
+					window.removeEventListener("mousemove", moveListener, true);
+					window.removeEventListener("mouseup", clearListener, true);
+				};
+				window.addEventListener("mousemove", moveListener, true);
+				window.addEventListener("mouseup", clearListener, true);
+			</handler>
+		</handlers>
+	</binding>
+
+</bindings>

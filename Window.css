@@ -1,0 +1,48 @@
+
+.window {
+	-moz-binding:url(Window.xml#Window);
+	position:absolute;
+	z-index:1;
+	width:200px;
+	height:200px;
+	border:2px outset #FFF;
+	background:#EEE;
+}
+
+.window-title-bar {
+	-moz-binding:url(Window.xml#WindowTitleBar);
+	margin:0;
+	height:1.3em;
+	padding:0 1em;
+	background:#009;
+	color:#FFF;
+	font-weight:bold;
+	cursor:default;
+	white-space:nowrap;
+	-moz-user-select:none;
+}
+
+.window-content {
+	border:2px inset #FFF;
+	overflow:auto;
+	padding-left:4px;
+	position:absolute;
+	top:1.3em;
+	left:0;
+	right:0;
+	bottom:0;
+	z-index:2;
+}
+
+.window-resizer {
+	-moz-binding:url(Window.xml#WindowResizer);
+	position:absolute;
+	right:-5px;
+	bottom:-5px;
+	width:16px;
+	height:16px;
+	z-index:1;
+	border:solid #666;
+	border-width:0 1px 1px 0;
+	cursor:se-resize;
+}
