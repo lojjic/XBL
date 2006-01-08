@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl" xmlns:h="http://www.w3.org/1999/xhtml">
+	
+	<binding id="controller">
+		<implementation>
+			<constructor><![CDATA[
+				var thisRef=this;
+				var loadHdlr = function() {
+					var i, fld;
+					var anon = document.getAnonymousNodes(thisRef)[0];
+					var flds = anon.getElementsByTagName("input"); //get text inputs
+					flds[flds.length] = anon.getElementsByTagName("select")[0]; //add the select field
+					var menu = document.getElementById(thisRef.getAttribute("title"));
+					if(!menu) return;
+					for(i=0; (fld=flds[i]); i++) {
+						fld.value = menu[fld.name]; // Set field to menu initial value
+						fld.onchange = function() { // When changed, set menu to field value:
+							var p = "parentNode";
+							var id = this[p][p][p][p][p].getAttribute("title");
+							if(menu) menu[this.name] = (this.name=="edge" ? this.value : parseFloat(this.value));
+						};
+					}
+				};
+				if(window.addEventListener) window.addEventListener("load", loadHdlr, false); //fire after load so we can be sure the menu is fully loaded and bound
+				loadHdlr(); //in case doc already loaded
+			]]></constructor>
+		</implementation>
+
+		<content>
+			<table xmlns="http://www.w3.org/1999/xhtml">
+			<tbody>
+			<tr>
+				<th>Edge of Window:</th>
+				<td>
+					<select name="edge">
+					<option value="left">left</option>
+					<option value="bottom">bottom</option>
+					<option value="right">right</option>
+					<option value="top">top</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>Min. Icon Size:</th>
+				<td><input type="text" size="3" name="iconMinSize" /> pixels</td>
+			</tr>
+			<tr>
+				<th>Max. Icon Size:</th>
+				<td><input type="text" size="3" name="iconMaxSize" /> pixels</td>
+			</tr>
+			<tr>
+				<th>Icon Spacing:</th>
+				<td><input type="text" size="3" name="iconSpacing" /> pixels</td>
+			</tr>
+			<tr>
+				<th>Scaling Curve:</th>
+				<td><input type="text" size="3" name="scaleReach" /> (bigger number is smoother curve)</td>
+			</tr>
+			</tbody>
+			</table>
+			<children />
+		</content>
+	</binding>
+	
+	
+</bindings>
