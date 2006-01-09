@@ -73,7 +73,9 @@
 				<body><![CDATA[
 					var thisRef = this;
 					function length(prop) {
-						return parseFloat(getComputedStyle(thisRef, null).getPropertyValue(prop));
+						return thisRef.currentStyle ?
+							thisRef.currentStyle[prop] :
+							parseFloat(getComputedStyle(thisRef, null).getPropertyValue(prop));
 					}
 					
 					var x = event.clientX + 12;

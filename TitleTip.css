@@ -16,9 +16,11 @@
 	font-weight:normal;
 	color:#000;
 	background:#FFF;
+	overflow:hidden;
 }
 
 .title-tip-href {
 	display:block;
 	font-style:italic;
+	overflow:hidden;
 }
